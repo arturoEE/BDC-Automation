@@ -1,4 +1,4 @@
-import visa_instrument
+from Keysight import visa_instrument
 class SMU(visa_instrument.Instrument):
     force = [0,0]
     limit = [0,0]
@@ -24,7 +24,7 @@ class SMU(visa_instrument.Instrument):
         self.write('DISP:TEXT "'+ msg +'"')
     def setMode(self,channel,m):
         self.mode[channel] = m
-        self.updateSettings()
+        self.write(':SOUR'+str(channel+1)+':FUNC:MODE '+m)
     def setForce(self,channel,f):
         self.force[channel] = f
         self.updateSettings()

@@ -7,7 +7,7 @@ class Saleae():
     manager = None
     captureConfig = None
     captureDuration = None
-    capture = None
+    capture_data = None
     def __init__(self, devicePort,deviceID=None):
         self.deviceID = deviceID
         self.port = devicePort
@@ -18,8 +18,8 @@ class Saleae():
     def close(self):
         self.manager.close()
     def capture(self):
-        self.capture = self.manager.start_capture(device_configuration=self.config,device_id=self.deviceID,capture_configuration=self.captureConfig)
-        self.capture.wait()
+        self.capture_data = self.manager.start_capture(device_configuration=self.config,device_id=self.deviceID,capture_configuration=self.captureConfig)
+        self.capture_data.wait()
     def createAnalyzer(self):
         pass
     def setCaptureDuration(self, t):
@@ -27,8 +27,8 @@ class Saleae():
     def setupDigitalTriggerCaptureMode(self,channel):
         self.captureConfig = automation.CaptureConfiguration(capture_mode=automation.DigitalTriggerCaptureMode(trigger_type=automation.DigitalTriggerType(1), trigger_channel_index=channel, after_trigger_seconds=self.captureDuration))
     def saveCapture(self,savepath):
-        self.capture.save_capture(filepath=savepath)
+        self.capture_data.save_capture(filepath=savepath)
     def exportData(self,savedir):
-        self.capture.export_raw_data_csv(directory=savedir, digital_channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        self.capture_data.export_raw_data_csv(directory=savedir, digital_channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
     def closeCapture(self):
-        self.capture.close()
+        self.capture_data.close()

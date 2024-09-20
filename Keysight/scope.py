@@ -1,4 +1,4 @@
-import visa_instrument
+from Keysight import visa_instrument
 class SCOPE(visa_instrument.Instrument):
     source = None # BUS1 BUS2 , analog channels?
     points_mode = None
