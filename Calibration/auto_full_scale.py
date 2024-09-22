@@ -39,18 +39,18 @@ def autoFS(FS_Set):
     awg1.configureChannel(2,'SIN',0.0,FS_Set/2,10)
     awg1.enableALL()
 
-    input("Press Enter after configuring scan chain to continue...")
+    #input("Press Enter after configuring scan chain to continue...")
 
     # Setup and Configure Logic Analyzer
     LA = saleae_atd.Saleae(devicePort=10430)
     LA.open()
 
     LA.configureLogic()
-    LA.setCaptureDuration(1)
+    LA.setCaptureDuration(5)
     LA.setupDigitalTriggerCaptureMode(channel=10)
 
 
-    V_CIC = np.linspace(0.55,0.65,100)
+    V_CIC = np.linspace(0.4,0.9,100)
     #V_CIC = [0.65,0.65]
     peakCodes = np.zeros((100))
 
@@ -68,11 +68,11 @@ def autoFS(FS_Set):
         DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
         DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
         peakCodes[i] = max(DATA.synchronousDataInt)
-        print(peakCodes[i])
+        print("Current Peak Code: "+str(peakCodes[i]))
         os.remove(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv")
         #input("Press Enter to continue...")
         if peakCodes[i] == MaxCode:
-            V_CIC_Range = voltage
+            V_CIC_Range = V_CIC[i-1]
             fig, ax = plt.subplots()
             ax.plot([float(item) for  item in DATA.synchronousDataTimeStamp], DATA.synchronousDataInt)
             plt.show()
@@ -86,5 +86,7 @@ def autoFS(FS_Set):
     LA.close()
     awg1.disableALL()
     smu1.disableALL()
+    #awg1.close()
+    #smu1.close()
     #smu2.disableALL()
     return V_CIC_Range

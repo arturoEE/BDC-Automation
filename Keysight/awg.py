@@ -49,3 +49,5 @@ class AWG(visa_instrument.Instrument):
         self.setWaveform(ch, w)
         self.setMinMax(ch, min, max)
         self.setFrequency(ch, f)
+    def close(self):
+        self.close()

@@ -2,16 +2,16 @@ import csv
 import numpy as np
 
 class SaleaeData():
-    filepath = ""
-    channelLabel = {} # Dictionary Corresponding physical channel addresses to their labels. Ordered.
-    triggerChannel = None # Channel to subsample our data on event.
-    data = None # Store Data
-    dataHEX = []
-    synchronousDataHex = []
-    synchronousDataInt = []
-    synchronousDataTimeStamp = []
-    triggerType = None # Rising, Falling
     def __init__(self,datafile, channelLabels, trigger, triggerType="FALLING"):
+        self.filepath = ""
+        self.channelLabel = {} # Dictionary Corresponding physical channel addresses to their labels. Ordered.
+        self.triggerChannel = None # Channel to subsample our data on event.
+        self.data = None # Store Data
+        self.dataHEX = []
+        self.synchronousDataHex = []
+        self.synchronousDataInt = []
+        self.synchronousDataTimeStamp = []
+        self.triggerType = None # Rising, Falling
         self.filepath = datafile
         self.channelLabel = channelLabels # Maybe make an alternative input of lists?
         self.triggerChannel = trigger

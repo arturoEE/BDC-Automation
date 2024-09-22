@@ -47,3 +47,5 @@ class SMU(visa_instrument.Instrument):
         self.setMode(ch, m)
         self.setForce(ch, f)
         self.setLimit(ch, l)
+    def close(self):
+        self.close()
