@@ -21,7 +21,7 @@ class singleSNDR(dft.Test):
     inputRange = [0.15]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
-    testname = "InputSweepSNDR"
+    testname = "SingleSNDR"
     note = ""
     #temploggingfolder = r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\TEMPLOG" # TEMPLOG folder holds temp data?
     temploggingfolder = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","TEMPLOG")
