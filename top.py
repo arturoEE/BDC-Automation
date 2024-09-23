@@ -1,6 +1,8 @@
-import Test_Cases.inputSweepSNDR as sndrtest
+import Test_Cases.inputSweepSNDR as sndrsweep
+import Test_Cases.singleSNDR as sndrsingle
 
-TEST = sndrtest.inputSweepSNDR("debugging")
+#TEST = sndrsweep.inputSweepSNDR("debugging")
+TEST = sndrsingle.singleSNDR("noisedebug")
 TEST.configureInstruments()
 TEST.run()
 

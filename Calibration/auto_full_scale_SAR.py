@@ -39,9 +39,10 @@ def autoFSSAR(FS_Set):
     awg1.configureChannel(2,'SIN',0.0,FS_Set/2,10)
     awg1.enableALL()
 
-    MaxCode = 508
+    MaxCode = 505
+    MaxSlope = 200
     V_CIC_max = 0.9
-    V_CIC_min = 0.4
+    V_CIC_min = 0.1
 
     SAR_Depth = 9
     SAR_Offset = 0
@@ -49,13 +50,14 @@ def autoFSSAR(FS_Set):
     Smaller = False
     V_CIC_Try = None
     last_level_under_MaxCode = None
+    last_level_under_MaxSlope = None
 
     for i in range(SAR_Depth):
         LA = saleae_atd.Saleae(devicePort=10430)
         LA.open()
 
         LA.configureLogic()
-        LA.setCaptureDuration(5)
+        LA.setCaptureDuration(10)
         LA.setupDigitalTriggerCaptureMode(channel=10)
         try:
             os.remove(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv")
@@ -76,12 +78,18 @@ def autoFSSAR(FS_Set):
         DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
         DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
         peakCodes = max(DATA.synchronousDataInt)
-        print("Trying Voltage: "+ str(V_CIC_Try)+" Current Peak Code: "+str(peakCodes))
-        if peakCodes >= MaxCode:
+        diff = np.gradient(DATA.synchronousDataInt)
+        print("Trying Voltage: "+ str(V_CIC_Try)+" Current Peak Code: "+str(peakCodes) +" Max Slope: " + str(max(diff)))
+        #if peakCodes >= MaxCode:
+        #    Smaller = True
+        #else:
+        #    Smaller = False
+        #    last_level_under_MaxCode = V_CIC_Try
+        if max(diff) >= MaxSlope:
             Smaller = True
         else:
             Smaller = False
-            last_level_under_MaxCode = V_CIC_Try
+            last_level_under_MaxSlope = V_CIC_Try
         LA.closeCapture()
         LA.close()
         SAR_Offset_Increment = SAR_Offset_Increment/2
@@ -95,4 +103,4 @@ def autoFSSAR(FS_Set):
     plt.show()
     awg1.disableALL()
     smu1.disableALL()
-    return last_level_under_MaxCode
+    return last_level_under_MaxSlope
