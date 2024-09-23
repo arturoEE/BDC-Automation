@@ -29,3 +29,13 @@ class SCOPE(visa_instrument.Instrument):
     def sampleScope(self):
         data = self.query(':WAV:DATA?')
         return data
+    def createWavGenClock(self, frequency):
+        self.write(':WGEN:FUNC SQU')
+        self.write(':WGEN:FREQ '+str(frequency))
+        self.write(':WGEN:VOLT:HIGH 0.8')
+        self.write(':WGEN:VOLT:LOW 0.0')
+    def enableWaveGenClock(self):
+        self.write(':WGEN:OUTP 1')
+    def disableWaveGenClock(self):
+        self.write(':WGEN:OUTP 0')
+    

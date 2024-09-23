@@ -82,7 +82,7 @@ class singleSNDR(dft.Test):
             DATA.convertDataToHex()
             DATA.readHexAtTriggerEdges()
             DATA.convertSynchHexdataToInt()
-            waveform_to_save = [[float(item) for  item in DATA.synchronousDataTimeStamp], fftlib.convertCodeToVoltage(9,self.FS_Set, DATA.synchronousDataInt)]
+            waveform_to_save = [[float(item) for  item in DATA.synchronousDataTimeStamp], fftlib.convertCodeToVoltage(10,self.FS_Set, DATA.synchronousDataInt)]
             # Save Post Processed Data
             with open(new_data_file+"_post_processed.csv", 'w', newline='') as f:
                 writer = csv.writer(f)
