@@ -73,7 +73,7 @@ class SaleaeData():
             if i == 0:
                 continue ## Skip the Header line
             binstr = ""
-            for element in dataline[1:10]:
+            for element in dataline[1:11]:
                 binstr = binstr+str(element)
             binstr = binstr[::-1]
             hexstr = hex(int(binstr,2))

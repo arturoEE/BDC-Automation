@@ -64,6 +64,7 @@ class singleSNDR(dft.Test):
             # First Auto Full Scale
 
             CIC_Set = afs.autoFSSAR(voltage)
+            #CIC_Set = 0.7
             # Configure SMU CI-Cell Bias
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
             self.awg1.enableALL()

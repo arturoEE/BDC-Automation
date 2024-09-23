@@ -39,7 +39,7 @@ def autoFSSAR(FS_Set):
     awg1.configureChannel(2,'SIN',0.0,FS_Set/2,10)
     awg1.enableALL()
 
-    MaxCode = 505
+    MaxCode = 1022
     MaxSlope = 200
     V_CIC_max = 0.9
     V_CIC_min = 0.1
@@ -85,7 +85,7 @@ def autoFSSAR(FS_Set):
         #else:
         #    Smaller = False
         #    last_level_under_MaxCode = V_CIC_Try
-        if max(diff) >= MaxSlope:
+        if max(diff) >= MaxSlope or peakCodes > MaxCode:
             Smaller = True
         else:
             Smaller = False
