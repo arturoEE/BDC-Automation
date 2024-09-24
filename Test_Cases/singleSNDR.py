@@ -16,7 +16,7 @@ class singleSNDR(dft.Test):
     FS_Set = 0.08
     input_freq = 10
     saleae_dev_port = 10430
-    trigger_channel = 10
+    trigger_channel = 11
     Nsamples = 2**16
     inputRange = [0.15]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
@@ -45,7 +45,7 @@ class singleSNDR(dft.Test):
         #self.smu1.enableALL()
 
         # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-        self.awg1.configureChannel(1,'SQU',0.0,0.4,self.samplerate)
+        self.awg1.configureChannel(1,'SQU',0.0,0.8,self.samplerate)
         self.awg1.configureChannel(2,'SIN',0.0,self.FS_Set/2,self.input_freq)
         #self.awg1.enableALL()
 
@@ -77,7 +77,7 @@ class singleSNDR(dft.Test):
             self.LA.exportData(self.temploggingfolder)
             new_data_file = self.saveData(self.temploggingfolder,note)
             # Post Process Measurement
-            DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], self.input_freq)
+            DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], self.trigger_channel)
             DATA.loadData()
             DATA.convertDataToHex()
             DATA.readHexAtTriggerEdges()
@@ -98,6 +98,7 @@ class singleSNDR(dft.Test):
             print("SNDR: "+ str(SNDR)+" ENOB: "+str(ENOB))
             # Save PSD Image Annotated with ENOB and SNDR
             fftlib.savePSD(f, PyydB, Nmax, binLow, binHigh,new_data_file+"_SNDR.png",SNDR)
+            #fftlib.plotPSD(f, PyydB, Nmax, binLow, binHigh)
             # Clean Up
         self.teardown() # Take Down Simulation Setup
     def teardown(self):

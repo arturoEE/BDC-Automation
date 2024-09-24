@@ -26,8 +26,8 @@ def autoFSSAR(FS_Set):
     awg1.disableALL()
     smu1.disableALL()
     # Monitoring Buffer 1uA Reference Current
-    smu1.setMode(0,'CURR')
-    smu1.configureChannel(0,'CURR', 0.000001, 0.9)
+    #smu1.setMode(0,'CURR')
+    #smu1.configureChannel(0,'CURR', 0.000001, 0.9)
 
     # Configure CI-Cell Voltage
     smu1.setMode(1,'VOLT')
@@ -35,7 +35,7 @@ def autoFSSAR(FS_Set):
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-    awg1.configureChannel(1,'SQU',0.0,0.4,1000)
+    awg1.configureChannel(1,'SQU',0.0,0.8,1000)
     awg1.configureChannel(2,'SIN',0.0,FS_Set/2,10)
     awg1.enableALL()
 
@@ -57,7 +57,7 @@ def autoFSSAR(FS_Set):
         LA.open()
 
         LA.configureLogic()
-        LA.setCaptureDuration(10)
+        LA.setCaptureDuration(5)
         LA.setupDigitalTriggerCaptureMode(channel=10)
         try:
             os.remove(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv")
@@ -72,7 +72,7 @@ def autoFSSAR(FS_Set):
         time.sleep(0.5)
         LA.capture()
         LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
-        DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 10)
+        DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
         DATA.loadData() # Load the Data We Just Measured
         DATA.convertDataToHex() # Convert Data to HEX Format
         DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
@@ -93,7 +93,7 @@ def autoFSSAR(FS_Set):
         LA.closeCapture()
         LA.close()
         SAR_Offset_Increment = SAR_Offset_Increment/2
-    DATA2 = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 10)
+    DATA2 = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
     DATA2.loadData() # Load the Data We Just Measured
     DATA2.convertDataToHex() # Convert Data to HEX Format
     DATA2.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)

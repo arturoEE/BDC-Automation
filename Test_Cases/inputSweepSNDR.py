@@ -16,7 +16,7 @@ class inputSweepSNDR(dft.Test):
     FS_Set = 0.08
     input_freq = 10
     saleae_dev_port = 10430
-    trigger_channel = 10
+    trigger_channel = 11
     Nsamples = 2**16
     inputRange = [0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
@@ -76,7 +76,7 @@ class inputSweepSNDR(dft.Test):
             self.LA.exportData(self.temploggingfolder)
             new_data_file = self.saveData(self.temploggingfolder,note)
             # Post Process Measurement
-            DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], self.input_freq)
+            DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], self.trigger_channel)
             DATA.loadData()
             DATA.convertDataToHex()
             DATA.readHexAtTriggerEdges()

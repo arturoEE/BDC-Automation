@@ -35,6 +35,10 @@ class AWG(visa_instrument.Instrument):
         self.amplitude[channel-1] = max-min
         self.write('SOUR'+str(channel)+':VOLT:LOW +'+str(min)+' V')
         self.write('SOUR'+str(channel)+':VOLT:HIGH +'+str(max)+' V')
+    def setPhase(self, channel, phase):
+        self.write('SOUR'+str(channel)+':PHAS '+str(phase))
+    def syncPhase(self, channel):
+        self.write('SOUR'+str(channel)+':PHAS:SYNC')
     def setOffset(self,channel,o): # DO NOT USE
         self.offset[channel-1] = o
         self.write('SOUR'+str(channel)+':FREQ '+self.frequency[channel-1]+' HZ')

@@ -2,7 +2,7 @@ import csv
 import numpy as np
 
 class SaleaeData():
-    def __init__(self,datafile, channelLabels, trigger, triggerType="FALLING"):
+    def __init__(self,datafile, channelLabels, trigger, triggerType="RISING"):
         self.filepath = ""
         self.channelLabel = {} # Dictionary Corresponding physical channel addresses to their labels. Ordered.
         self.triggerChannel = None # Channel to subsample our data on event.
@@ -10,6 +10,7 @@ class SaleaeData():
         self.dataHEX = []
         self.synchronousDataHex = []
         self.synchronousDataInt = []
+        self.synchronousSignBit = []
         self.synchronousDataTimeStamp = []
         self.triggerType = None # Rising, Falling
         self.filepath = datafile
@@ -25,7 +26,7 @@ class SaleaeData():
     def readHexAtTriggerEdges(self):
         val_last = None
         trigger_points = [] # List of Rising Edges
-        for idx, val in enumerate([i[2] for i in self.dataHEX]):
+        for idx, val in enumerate([i[3] for i in self.dataHEX]):
             if val_last == None:
                 val_last = val
                 continue
@@ -46,10 +47,11 @@ class SaleaeData():
         for point in trigger_points:
             self.synchronousDataHex.append(self.dataHEX[point][1]) # 
             self.synchronousDataTimeStamp.append(self.dataHEX[point][0]) # Saleae Logged relative time stamp
+            self.synchronousSignBit.append(self.dataHEX[point][2]) # Sign Bit
     def readHexAtFirstTriggerEdge(self):
         val_last = None
         trigger_point = None
-        for idx, val in enumerate([i[2] for i in self.dataHEX]): ## Dont Hard Code in the Future --- also this wont work because the list is the other direction
+        for idx, val in enumerate([i[3] for i in self.dataHEX]): ## Dont Hard Code in the Future --- also this wont work because the list is the other direction
             if val_last == None:
                 val_last = val
                 continue
@@ -67,17 +69,27 @@ class SaleaeData():
     def readHexAtIndex(self):
         pass
     def convertSynchHexdataToInt(self):
-        self.synchronousDataInt = [int(x,0) for x in self.synchronousDataHex]
+        tempint = [int(x,0) for x in self.synchronousDataHex]
+        for idx, val in enumerate(tempint):
+            polarity = 1
+            if int(self.synchronousSignBit[idx]) == 1:
+                polarity = 1
+            elif int(self.synchronousSignBit[idx]) == 0:
+                polarity = -1
+            else:
+                print("SIGN ERROR")
+            self.synchronousDataInt.append(val*polarity)
     def convertDataToHex(self):
         for i, dataline in enumerate(self.data):
             if i == 0:
                 continue ## Skip the Header line
             binstr = ""
-            for element in dataline[1:11]:
+            for element in dataline[1:11]: ## hwo 2 handle the negative data?
                 binstr = binstr+str(element)
             binstr = binstr[::-1]
+            signbit = dataline[11]
             hexstr = hex(int(binstr,2))
-            self.dataHEX.append([dataline[0], hexstr, dataline[self.triggerChannel+1]])
+            self.dataHEX.append([dataline[0], hexstr,signbit, dataline[self.triggerChannel+1]])
     def importConfigFromInst(self, instance):
         pass
     def returnMeanValueSynchData(self):

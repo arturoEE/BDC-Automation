@@ -46,7 +46,7 @@ def basic_test(FS_Set, CIC_Set):
     LA.open()
 
     LA.configureLogic()
-    LA.setCaptureDuration(1)
+    LA.setCaptureDuration(5)
     LA.setupDigitalTriggerCaptureMode(channel=10)
 
     smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)

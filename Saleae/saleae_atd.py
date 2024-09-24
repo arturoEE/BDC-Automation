@@ -13,7 +13,7 @@ class Saleae():
         self.port = devicePort
     def open(self):
         self.manager = automation.Manager.connect(port=self.port)
-    def configureLogic(self, channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], sampleRate=1_000_000, threshold=1.2):
+    def configureLogic(self, channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], sampleRate=1_000_000, threshold=1.2):
         self.config = automation.LogicDeviceConfiguration(enabled_digital_channels=channels, digital_sample_rate=sampleRate, digital_threshold_volts=threshold)
     def close(self):
         self.manager.close()
@@ -29,6 +29,6 @@ class Saleae():
     def saveCapture(self,savepath):
         self.capture_data.save_capture(filepath=savepath)
     def exportData(self,savedir):
-        self.capture_data.export_raw_data_csv(directory=savedir, digital_channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+        self.capture_data.export_raw_data_csv(directory=savedir, digital_channels=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11])
     def closeCapture(self):
         self.capture_data.close()

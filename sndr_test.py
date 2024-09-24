@@ -1,6 +1,6 @@
 import FFT.sndr_fft as sndr
 
-[timestamps, waveform] = sndr.readWaveformCSV("out.csv")
+[timestamps, waveform] = sndr.readWaveformCSV(r"Input_v0.15_f10_post_processed.csv")
 f, Pyy, PyydB, Nmax = sndr.convertWaveformToPSD(timestamps, waveform)
 binLow, binHigh = sndr.getSignalPowerBins(f, PyydB, 10)
 SNDR, ENOB = sndr.caculateSNDRFromPSD(Pyy, Nmax, binLow, binHigh)
