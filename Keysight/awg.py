@@ -28,9 +28,9 @@ class AWG(visa_instrument.Instrument):
         self.frequency[channel-1] = f
         self.write('SOURce'+str(channel)+':FREQuency '+str(self.frequency[channel-1]))
         print('SOUR'+str(channel)+':FREQ '+str(self.frequency[channel-1])+' HZ')
-    def setAmplitude(self,channel,a): # DO NOT USE
+    def setAmplitude(self,channel,a):
         self.amplitude[channel-1] = a
-        self.write('SOUR'+str(channel)+':VOLT +'+str(self.amplitude[channel-1])+' V')
+        self.write('SOUR'+str(channel)+':VOLT +'+str(a)+' V')
     def setMinMax(self,channel,min,max):
         self.amplitude[channel-1] = max-min
         self.write('SOUR'+str(channel)+':VOLT:LOW +'+str(min)+' V')
@@ -39,9 +39,9 @@ class AWG(visa_instrument.Instrument):
         self.write('SOUR'+str(channel)+':PHAS '+str(phase))
     def syncPhase(self, channel):
         self.write('SOUR'+str(channel)+':PHAS:SYNC')
-    def setOffset(self,channel,o): # DO NOT USE
+    def setOffset(self,channel,o):
         self.offset[channel-1] = o
-        self.write('SOUR'+str(channel)+':FREQ '+self.frequency[channel-1]+' HZ')
+        self.write('SOUR'+str(channel)+':VOLT:OFFS '+str(o))
     def setWaveform(self,channel,w):
         self.waveform[channel-1] = w
         self.write('SOUR'+str(channel)+':FUNC '+self.waveform[channel-1])
@@ -52,6 +52,11 @@ class AWG(visa_instrument.Instrument):
     def configureChannel(self, ch, w, min, max,f):
         self.setWaveform(ch, w)
         self.setMinMax(ch, min, max)
+        self.setFrequency(ch, f)
+    def configureChannelALT(self, ch, w, ampl, offset,f):
+        self.setWaveform(ch, w)
+        self.setAmplitude(ch, ampl)
+        self.setOffset(ch, offset)
         self.setFrequency(ch, f)
     def close(self):
         self.close()

@@ -36,7 +36,7 @@ def autoFSSAR(FS_Set):
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,10)
+    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,9.963989257812500)
     awg1.configureChannel(1,'SQU',0.0,0.4,1000)
     awg1.setPhase(1,30)
     awg1.configureChannel(2,'SQU',0.0,0.8,1000)

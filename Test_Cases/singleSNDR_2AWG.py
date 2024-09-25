@@ -14,11 +14,11 @@ import Calibration.auto_full_scale_SAR_2AWG as afs
 class singleSNDR(dft.Test):
     samplerate = 1000
     FS_Set = 0.08
-    input_freq = 10
+    input_freq = 9.963989257812500
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**16
-    inputRange = [0.15]
+    inputRange = [0.17]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "SingleSNDR"
