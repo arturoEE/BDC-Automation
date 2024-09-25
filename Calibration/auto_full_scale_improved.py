@@ -7,21 +7,11 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-# Designed for the Single Ended Use Case
-
-## Auto Full Scale Script:
-## SMU: Output Max value of Sine
-## The Lower the Bias to CI-Cell is, the larger the LSB.
-##
-def autoFSSAR(FS_Set):
+def autoFS(FS_Set, single=True):
     # Configure Test Equipment:
     awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
     smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
-    #smu2 = smu.SMU("")
-
-    # Maybe Also use Scope and Monitor Buffer for this...?
-    # Need a Second SMU if we want Monitor Buffer
+    awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
 
     awg1.disableALL()
     smu1.disableALL()
@@ -35,14 +25,51 @@ def autoFSSAR(FS_Set):
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
+    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,10)
     awg1.configureChannel(1,'SQU',0.0,0.8,1000)
-    awg1.configureChannel(2,'SIN',0.0,FS_Set/2,10)
+    awg1.setPhase(1,30)
+    awg1.configureChannel(2,'SQU',0.0,0.8,1000)
+    awg1.setPhase(2,0)
+    awg1.syncPhase(2)
     awg1.enableALL()
+    awg2.enableALL()
 
-    MaxCode = 1022
-    MaxSlope = 200
+
+    LA = saleae_atd.Saleae(devicePort=10430)
+    LA.open()
+
+    LA.configureLogic()
+    LA.setCaptureDuration(5)
+    LA.setupDigitalTriggerCaptureMode(channel=10)
+    
+
+    if single:
+        MaxCode = 1022
+        MaxSlope = 200
+        MinCode = 1
+    else:
+        MaxCode = 1022
+        MaxSlope = 200
+        MinCode = -1022
     V_CIC_max = 0.9
     V_CIC_min = 0.1
+
+    if single:
+        smu1.configureChannel(1,'VOLT',0.7,0.0001)
+        time.sleep(0.5)
+        LA.capture()
+        LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
+        DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
+        DATA.loadData() # Load the Data We Just Measured
+        DATA.convertDataToHex() # Convert Data to HEX Format
+        DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
+        DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
+        minCodes = min(DATA.synchronousDataInt)
+        print("Adjusting Sine Minimum. Current Min Code: " + str(minCodes))
+        if minCodes != 1:
+            # Adjust offset of sine. But by how much?
+            pass
+
 
     SAR_Depth = 9
     SAR_Offset = 0
@@ -53,12 +80,6 @@ def autoFSSAR(FS_Set):
     last_level_under_MaxSlope = None
 
     for i in range(SAR_Depth):
-        LA = saleae_atd.Saleae(devicePort=10430)
-        LA.open()
-
-        LA.configureLogic()
-        LA.setCaptureDuration(5)
-        LA.setupDigitalTriggerCaptureMode(channel=10)
         try:
             os.remove(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv")
         except:
