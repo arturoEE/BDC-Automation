@@ -39,45 +39,80 @@ def chooseFin(ftarget, fs, nSample):
 
     return nWindow / nSample * fs
 
-def convertWaveformToPSD(timestamp,waveform, fin, nBit, vmax, vmin):
-    #nBit = 10
-    #vmax = 170e-3
-    #vmin = 0
-    range = [vmin, vmax]
-    offset = statistics.mean(range)
-    amp = (vmax - vmin)/2 * 1
+
+def sinusx(sigin,f,n):
+    inputarray = np.array(sigin, dtype='float32') # Lets start using numpy as if i was actually smart
+
+    sinx=np.sin(2*math.pi*f*np.linspace(0,n))
+    cosx=np.cos(2*math.pi*f*np.linspace(0,n))
+    inputarray2=inputarray[0:n]
+    a0 = np.sum(inputarray2)/n
+    a1=2*sinx*inputarray2
+    a=np.sum(a1)/n
+    b1=2*cosx*inputarray2
+    b=np.sum(b1)/n
+    outx= a0+ np.add(a*sinx + b*cosx)
+    return outx
+
+def calcENOB(wavein, fin, fs, win='blackman'):
+    nSample = len(wavein)
+    if nSample%2 == 1:
+        nSample = nSample -1
+
+    y = wavein[0:nSample]
+    h = statistics.mean(y)
+    y = [g - h for g in y]
+
+    ywindow = signal.windows.blackmanharris(nSample)
+
+    thing = [a*b for a,b in zip(y, ywindow)]
+    ysignal = nSample/sum(ywindow)*sinusx(thing,fin/fs,nSample)
+    ysignal2 = nSample/sum(ywindow)*sinusx(thing,2*fin/fs,nSample)
+    ysignal3 = nSample/sum(ywindow)*sinusx(thing,3*fin/fs,nSample)
+    ysignal4 = nSample/sum(ywindow)*sinusx(thing,4*fin/fs,nSample)
+    ysignal5 = nSample/sum(ywindow)*sinusx(thing,5*fin/fs,nSample)
+    ysignal6 = nSample/sum(ywindow)*sinusx(thing,6*fin/fs,nSample)
+    ysignal7 = nSample/sum(ywindow)*sinusx(thing,7*fin/fs,nSample)
+    ysignal8 = nSample/sum(ywindow)*sinusx(thing,8*fin/fs,nSample)
+    ysignal9 = nSample/sum(ywindow)*sinusx(thing,9*fin/fs,nSample)
+    ysignal10 = nSample/sum(ywindow)*sinusx(thing,10*fin/fs,nSample)
+    ysignal11 = nSample/sum(ywindow)*sinusx(thing,11*fin/fs,nSample)
+    ysignal12 = nSample/sum(ywindow)*sinusx(thing,12*fin/fs,nSample)
+    ysignal13 = nSample/sum(ywindow)*sinusx(thing,13*fin/fs,nSample)
+    ysignal14 = nSample/sum(ywindow)*sinusx(thing,14*fin/fs,nSample)
+
+    ynoise = y-ysignal
+    ynoise_only = y-ysignal-ysignal2-ysignal3-ysignal4-ysignal5-ysignal6-ysignal7-ysignal8-ysignal9-ysignal10-ysignal11-ysignal12-ysignal13-ysignal14
+
+    ywindow = np.array(ywindow)
+
+    RMSsignal = np.linalg.norm(np.fft.fft(ysignal*ywindow),2)
+    RMSsignal2 = np.linalg.norm(np.fft.fft(ysignal2*ywindow),2)
+    RMSsignal3 = np.linalg.norm(np.fft.fft(ysignal3*ywindow),2)
+    RMSsignal4 = np.linalg.norm(np.fft.fft(ysignal4*ywindow),2)
+    RMSsignal5 = np.linalg.norm(np.fft.fft(ysignal5*ywindow),2)
+    RMSsignal6 = np.linalg.norm(np.fft.fft(ysignal6*ywindow),2)
+    RMSsignal7 = np.linalg.norm(np.fft.fft(ysignal7*ywindow),2)
+
+    RMSnoise = np.linalg.norm(np.fft.fft(ynoise*ywindow))
+    RMSnoise_only = np.linalg.norm(np.fft.fft(ynoise_only*ywindow))
+
+    SNDR = 20*math.log10(RMSsignal/RMSnoise)
+    SNR = 20*math.log10(RMSsignal/RMSnoise_only)
+    Enob = (SNDR - 1.76)/6.02
+    Enob_noise_only = (SNR - 1.76)/6.02
+
+    Ydb = 20*math.log10(abs(np.fft.fft(y*ywindow)))
+    return [Enob, Ydb, SNDR, Enob_noise_only, SNR]
+
+def convertWaveformToPSD(timestamp,waveform, fin):
     nSample = 2**16
     fs = round(1/(timestamp[1]-timestamp[0]))
-    # fin = chooseFin(fin, fs, nSample) ## Do this elsewhere
-    t = 0:1/fs:(nSample-1)/fs
-    ain = amp * waveform[2*math.pi*fin*t] + offset
-    offset = 1
-    dout = waveform[offset:nSample+offset,2]
-    [Enob, Ydb, SNDR,Enob_noise_only,SNR] = calcENOB(dout, fin, fs,'blackman');
+    offset = 0
+    dout = waveform[offset:nSample+offset:2]
+    [Enob, Ydb, SNDR,Enob_noise_only,SNR] = calcENOB(dout, fin, fs, 'blackman')
     Ydb = Ydb - max(Ydb)
-
-
-
-
-
-
-    dc_term = statistics.mean(waveform)
-    waveformAC = [sample-dc_term for sample in waveform]
-    fsamp = 1/(timestamp[1]-timestamp[0])
-    nx = len(waveformAC)
-    na = 1
-    W = signal.windows.blackmanharris(math.floor(nx/na))
-    N = len(W)
-    f, Pxx = signal.welch(waveformAC,window=W,noverlap=0,fs=fsamp, detrend=False)
-    Nmax = math.ceil(math.floor(nx/na)/2)  # Minus 1 to adj from MATLAB？
-    # 65500
-    fbin = f[1]-f[0] # Frequency Bin Width
-    CG = sum(W)/N; # Normalized Coherent Gain
-    NG = sum([w**2 for w in W])/N # Normalized Noise Gain
-    NF = fbin*NG/(CG**2)
-    Pyy = [pxx*NF for pxx in Pxx]
-    PyydB = [10*np.log10(pyy) for pyy in Pyy]
-    return [f, Pyy, PyydB, Nmax]
+    print(SNDR)
 
 def plotPSD(f, PyydB, Nmax, binLow, binHigh):
     #pdiff = pdiff = np.gradient(PyydB)
