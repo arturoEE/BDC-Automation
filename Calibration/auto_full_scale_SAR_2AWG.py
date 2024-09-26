@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 ## SMU: Output Max value of Sine
 ## The Lower the Bias to CI-Cell is, the larger the LSB.
 ##
-def autoFSSAR(FS_Set):
+def autoFSSAR(FS_Set, input_freq):
     # Configure Test Equipment:
     awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
     smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
@@ -36,7 +36,8 @@ def autoFSSAR(FS_Set):
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,9.963989257812500)
+    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,input_freq)
+    awg2.configureChannelALT(1,'SIN',FS_Set/2,0.002+FS_Set/4,input_freq)
     awg1.configureChannel(1,'SQU',0.0,0.4,1000)
     awg1.setPhase(1,30)
     awg1.configureChannel(2,'SQU',0.0,0.8,1000)
@@ -46,7 +47,8 @@ def autoFSSAR(FS_Set):
     awg2.enableALL()
 
     MaxCode = 1022
-    MaxSlope = 200
+    MaxCode = -2
+    MaxSlope = 1000
     V_CIC_max = 0.9
     V_CIC_min = 0.1
 

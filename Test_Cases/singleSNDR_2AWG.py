@@ -7,7 +7,7 @@ import time
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-import FFT.sndr_fft as fftlib
+import FFT.jang_fft as fftlib
 import csv
 import Calibration.auto_full_scale_SAR_2AWG as afs
 
@@ -18,7 +18,7 @@ class singleSNDR(dft.Test):
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**16
-    inputRange = [0.17]
+    inputRange = [0.16]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "SingleSNDR"
@@ -28,10 +28,11 @@ class singleSNDR(dft.Test):
     SNDR_Measurements = []
     ENOB_Measurements = []
 
-    def __init__(self, note):
+    def __init__(self, freq, note):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
         self.awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
         self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
+        self.input_freq = fftlib.chooseFin(freq, 1000, 2**16)
         self.note = note
     def configureInstruments(self):
         self.awg1.disableALL()
@@ -68,7 +69,7 @@ class singleSNDR(dft.Test):
         for voltage in self.inputRange:
             # First Auto Full Scale
 
-            CIC_Set = afs.autoFSSAR(voltage)
+            CIC_Set = afs.autoFSSAR(voltage, self.input_freq)
             #CIC_Set = 0.7
             # Configure SMU CI-Cell Bias
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
@@ -95,15 +96,11 @@ class singleSNDR(dft.Test):
                 writer.writerows(waveform_to_save)
             #SNDR Time
             [timestamps, waveform] = fftlib.readWaveformCSV(new_data_file+"_post_processed.csv")
-            f, Pyy, PyydB, Nmax = fftlib.convertWaveformToPSD(timestamps, waveform)
-            binLow, binHigh = fftlib.getSignalPowerBins(f, PyydB, 10)
-            SNDR, ENOB = fftlib.caculateSNDRFromPSD(Pyy, Nmax, binLow, binHigh)
+            fs, Ydb, SNDR, Enob, SNR, Enob_noise_only, THD, n = fftlib.convertWaveformToPSD(timestamps, waveform, self.input_freq)
             self.SNDR_Measurements.append(SNDR)
-            self.ENOB_Measurements.append(ENOB)
-            #print(str(binLow) + ", "+str(binHigh))
-            print("SNDR: "+ str(SNDR)+" ENOB: "+str(ENOB))
+            self.ENOB_Measurements.append(Enob)
             # Save PSD Image Annotated with ENOB and SNDR
-            fftlib.savePSD(f, PyydB, Nmax, binLow, binHigh,new_data_file+"_SNDR_"+str(CIC_Set)+".png",SNDR)
+            fftlib.savePSD(fs, Ydb, n, SNDR, SNR, Enob, THD,new_data_file+"_SNDR_"+str(CIC_Set)+".png")
             #fftlib.plotPSD(f, PyydB, Nmax, binLow, binHigh)
             # Clean Up
         self.teardown() # Take Down Simulation Setup
