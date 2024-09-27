@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 ## SMU: Output Max value of Sine
 ## The Lower the Bias to CI-Cell is, the larger the LSB.
 ##
-def autoFSSAR(FS_Set, input_freq):
+def autoFSSAR(FS_Set, input_freq,neg=False):
     # Configure Test Equipment:
     awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
     smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
@@ -47,6 +47,8 @@ def autoFSSAR(FS_Set, input_freq):
     awg2.enableALL()
 
     MaxCode = 1022
+    if neg:
+        MaxCode = -1022
     #MaxCode = -2
     MaxSlope = 1000
     V_CIC_max = 0.9
@@ -85,7 +87,10 @@ def autoFSSAR(FS_Set, input_freq):
         DATA.convertDataToHex() # Convert Data to HEX Format
         DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
         DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
-        peakCodes = max(DATA.synchronousDataInt)
+        if neg == False:
+            peakCodes = max(DATA.synchronousDataInt)
+        else:
+            peakCodes = max(DATA.synchronousDataInt)
         diff = np.gradient(DATA.synchronousDataInt)
         print("Trying Voltage: "+ str(V_CIC_Try)+" Current Peak Code: "+str(peakCodes) +" Max Slope: " + str(max(diff)))
         #if peakCodes >= MaxCode:
@@ -93,13 +98,13 @@ def autoFSSAR(FS_Set, input_freq):
         #else:
         #    Smaller = False
         #    last_level_under_MaxCode = V_CIC_Try
-        if max(diff) >= MaxSlope or peakCodes > MaxCode:
+        if max(diff) >= MaxSlope or abs(peakCodes) > MaxCode:
             Smaller = True
         else:
             Smaller = False
             last_level_under_MaxSlope = V_CIC_Try
         LA.closeCapture()
-        LA.close()
+        #LA.close()
         SAR_Offset_Increment = SAR_Offset_Increment/2
     DATA2 = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
     DATA2.loadData() # Load the Data We Just Measured

@@ -71,14 +71,17 @@ class SaleaeData():
     def convertSynchHexdataToInt(self):
         tempint = [int(x,0) for x in self.synchronousDataHex]
         for idx, val in enumerate(tempint):
+            val_to_append = None
             polarity = 1
             if int(self.synchronousSignBit[idx]) == 1:
+                val_to_append = val
                 polarity = 1
             elif int(self.synchronousSignBit[idx]) == 0:
+                val_to_append = 1023-val
                 polarity = -1
             else:
                 print("SIGN ERROR")
-            self.synchronousDataInt.append(val*polarity)
+            self.synchronousDataInt.append(val_to_append*polarity)
     def convertDataToHex(self):
         for i, dataline in enumerate(self.data):
             if i == 0:

@@ -56,9 +56,8 @@ def calcENOB(wavein, fin, fs, win='blackman'):
         nSample = nSample -1
 
     y = wavein[0:nSample]
-    h = statistics.mean(y)
-    y = [g - h for g in y]
     y = np.array(y)
+    y = y - np.mean(y)
 
     ywindow = np.blackman(nSample)
 

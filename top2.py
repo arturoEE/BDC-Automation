@@ -5,7 +5,7 @@ import csv
 
 bs2.basic_test(0.5)
 #input()
-#print(afs.autoFS(0.06, single=False))
+#print(afs.autoFS(0.15, 0.9, single=True, negative=True))
 #exit()
 #a = sndr.sndr_sample(0.05, 0.598,1000)
 
