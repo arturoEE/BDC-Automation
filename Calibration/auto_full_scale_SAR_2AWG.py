@@ -36,8 +36,8 @@ def autoFSSAR(FS_Set, input_freq):
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,input_freq)
-    awg2.configureChannelALT(1,'SIN',FS_Set/2,0.002+FS_Set/4,input_freq)
+    awg2.configureChannel(1,'SIN',0.0,FS_Set/2,input_freq) 
+    awg2.configureChannelALT(1,'SIN',FS_Set/2,FS_Set/4,input_freq) # 2mv here neg
     awg1.configureChannel(1,'SQU',0.0,0.4,1000)
     awg1.setPhase(1,30)
     awg1.configureChannel(2,'SQU',0.0,0.8,1000)
@@ -47,7 +47,7 @@ def autoFSSAR(FS_Set, input_freq):
     awg2.enableALL()
 
     MaxCode = 1022
-    MaxCode = -2
+    #MaxCode = -2
     MaxSlope = 1000
     V_CIC_max = 0.9
     V_CIC_min = 0.1
