@@ -58,5 +58,7 @@ class AWG(visa_instrument.Instrument):
         self.setAmplitude(ch, ampl)
         self.setOffset(ch, offset)
         self.setFrequency(ch, f)
+    def setTracking(self,channel, mode): # INV
+        self.write('SOUR'+str(channel)+':TRAC '+mode)
     def close(self):
         self.close()

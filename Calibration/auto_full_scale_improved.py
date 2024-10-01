@@ -23,7 +23,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
 
     # Configure CI-Cell Voltage
     smu1.setMode(1,'VOLT')
-    smu1.configureChannel(1,'VOLT',0.6,0.0001)
+    smu1.configureChannel(1,'VOLT',0.3,0.0001)
     smu1.enableALL()
 
     # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
@@ -45,7 +45,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     LA.open()
 
     LA.configureLogic()
-    LA.setCaptureDuration(5)
+    LA.setCaptureDuration(3/frequency)
     LA.setupDigitalTriggerCaptureMode(channel=10)
     
 
@@ -58,7 +58,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
         MaxSlope = 1000
         MinCode = -1022
     V_CIC_max = 0.9
-    V_CIC_min = 0.1
+    V_CIC_min = 0.01
 
     if single:
         if negative==False:
@@ -135,6 +135,72 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
             awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
     else:
         pass
+        # First, let's grab the max and min values for the sinusoid
+        # smu1.configureChannel(1,'VOLT',0.3,0.0001)
+        # time.sleep(0.5)
+        # LA.capture()
+        # LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
+        # DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
+        # DATA.loadData() # Load the Data We Just Measured
+        # DATA.convertDataToHex() # Convert Data to HEX Format
+        # DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
+        # DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
+        # minimum = min(DATA.synchronousDataInt)
+        # maximum = max(DATA.synchronousDataInt)
+        # difference = abs(maximum) - abs(minimum)
+        # print("Adjusting Offset. Min: " + str(minimum) + " Max: " + str(maximum) + " Diff: " + str(difference))
+        # # Now it's time to adjust the offset.
+        # up = False
+        # SAR_Offset = 0
+        # V_off_max = 0.01
+        # V_off_min = -0.01
+        # SAR_Offset_Increment = (V_off_max-V_off_min)/2
+        # if difference < 1:
+        #     up = True
+        # SAR_Depth = 7
+        # for i in range(SAR_Depth):
+        #     try:
+        #         os.remove(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv")
+        #     except:
+        #         pass
+        #     if up == True:
+        #         SAR_Offset = SAR_Offset + SAR_Offset_Increment
+        #     else:
+        #         SAR_Offset = SAR_Offset - SAR_Offset_Increment
+        #     V_off_Tryp = FS_Set/4 + SAR_Offset
+        #     V_off_Tryn = FS_Set/4 - SAR_Offset
+        #     awg2.configureChannelALT(2, 'SIN', FS_Set/2, V_off_Tryn, frequency)
+        #     awg2.configureChannelALT(2, 'SIN', FS_Set/2, V_off_Tryp, frequency)
+        #     awg2.setPhase(1,0)
+        #     awg2.setPhase(2,180)
+        #     awg2.syncPhase(2)
+        #     time.sleep(0.5)
+        #     LA = saleae_atd.Saleae(devicePort=10430)
+        #     LA.open()
+
+        #     LA.configureLogic()
+        #     LA.setCaptureDuration(5)
+        #     LA.setupDigitalTriggerCaptureMode(channel=10)
+        
+        #     LA.capture()
+        #     LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
+        #     DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
+        #     DATA.loadData() # Load the Data We Just Measured
+        #     DATA.convertDataToHex() # Convert Data to HEX Format
+        #     DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
+        #     DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
+        #     minimum = min(DATA.synchronousDataInt)
+        #     maximum = max(DATA.synchronousDataInt)
+        #     difference = abs(maximum) - abs(minimum)
+        #     print("Adjusting Offset. Min: " + str(minimum) + " Max: " + str(maximum) + " Diff: " + str(difference)+ " Try: " + str(V_off_Tryp))
+        #     if difference < 1:
+        #         up = True
+        #     else:
+        #         up = False
+        #     LA.closeCapture()
+        #     LA.close()
+        #     SAR_Offset_Increment = SAR_Offset_Increment/2
+
         # offset = FS_Set/4
         # last = None
         # shiftAmount = 0.00005
@@ -210,7 +276,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
         # awg2.setAmplitude(1,FS_Set/2)
     LA.open()
     LA.configureLogic()
-    LA.setCaptureDuration(5)
+    LA.setCaptureDuration(3/frequency)
     LA.setupDigitalTriggerCaptureMode(channel=10)
     smu1.configureChannel(1,'VOLT',0.7,0.0001)
     SAR_Depth = 9
@@ -237,7 +303,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
         LA.open()
 
         LA.configureLogic()
-        LA.setCaptureDuration(5)
+        LA.setCaptureDuration(3/frequency)
         LA.setupDigitalTriggerCaptureMode(channel=10)
     
         LA.capture()
@@ -272,5 +338,5 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     DATA2.convertSynchHexdataToInt() # Generate an Int Array of Data too.
     fig, ax = plt.subplots()
     ax.plot([float(item) for  item in DATA2.synchronousDataTimeStamp], DATA2.synchronousDataInt)
-    plt.show()
+    #plt.show()
     return last_level_under_MaxSlope
