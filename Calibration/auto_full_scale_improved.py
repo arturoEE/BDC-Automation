@@ -60,81 +60,81 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     V_CIC_max = 0.9
     V_CIC_min = 0.01
 
-    if single:
-        if negative==False:
-            offset = FS_Set/4
-            last = None
-            shiftAmount = 0.00005
-            while(1):
-                smu1.configureChannel(1,'VOLT',0.7,0.0001)
-                time.sleep(0.5)
-                LA.capture()
-                LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
-                DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
-                DATA.loadData() # Load the Data We Just Measured
-                DATA.convertDataToHex() # Convert Data to HEX Format
-                DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
-                DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
-                minCodes = min(DATA.synchronousDataInt)
-                print("Adjusting Sine Minimum. Current Min Code: " + str(minCodes))
-                if minCodes < 1: # We need to check if we are above or below?
-                    if last == "DOWN":
-                        offset = offset + shiftAmount
-                        break
-                    offset = offset + shiftAmount # add 10 microvolt
-                    last = "UP"
-                elif minCodes > 1:
-                    if last == "UP":
-                        break
-                    offset = offset - shiftAmount # sub 10 microvolt
-                    last = "DOWN"
-                else:
-                    break
-                awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
-            awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
-        else:
-            offset = FS_Set/4+0.002
-            last = None
-            shiftAmount = 0.0001
-            while(1):
-                LA.open()
+    # if single:
+    #     if negative==False:
+    #         offset = FS_Set/4
+    #         last = None
+    #         shiftAmount = 0.00005
+    #         while(1):
+    #             smu1.configureChannel(1,'VOLT',0.7,0.0001)
+    #             time.sleep(0.5)
+    #             LA.capture()
+    #             LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
+    #             DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
+    #             DATA.loadData() # Load the Data We Just Measured
+    #             DATA.convertDataToHex() # Convert Data to HEX Format
+    #             DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
+    #             DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
+    #             minCodes = min(DATA.synchronousDataInt)
+    #             print("Adjusting Sine Minimum. Current Min Code: " + str(minCodes))
+    #             if minCodes < 4: # We need to check if we are above or below?
+    #                 if last == "DOWN":
+    #                     offset = offset + shiftAmount
+    #                     break
+    #                 offset = offset + shiftAmount # add 10 microvolt
+    #                 last = "UP"
+    #             elif minCodes > 4:
+    #                 if last == "UP":
+    #                     break
+    #                 offset = offset - shiftAmount # sub 10 microvolt
+    #                 last = "DOWN"
+    #             else:
+    #                 break
+    #             awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
+    #         awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
+    #     else:
+    #         offset = FS_Set/4+0.002
+    #         last = None
+    #         shiftAmount = 0.0001
+    #         while(1):
+    #             LA.open()
 
-                LA.configureLogic()
-                LA.setCaptureDuration(5)
-                LA.setupDigitalTriggerCaptureMode(channel=10)
-                smu1.configureChannel(1,'VOLT',0.7,0.0001)
-                time.sleep(0.5)
-                LA.capture()
-                LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
-                DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
-                DATA.loadData() # Load the Data We Just Measured
-                DATA.convertDataToHex() # Convert Data to HEX Format
-                DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
-                DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
-                minCodes = max(DATA.synchronousDataInt)
-                print("Adjusting Sine Maximum. Current Max Code: " + str(minCodes))
-                if minCodes == 0:
-                    break
-                if minCodes > -1: # We need to check if we are above or below?
-                    if last == "DOWN":
-                        pass
-                        #offset = offset + shiftAmount
-                        #break
-                    offset = offset + shiftAmount # add 10 microvolt
-                    last = "UP"
-                elif minCodes < -1:
-                    if last == "UP":
-                        pass
-                        #break
-                    offset = offset - shiftAmount # sub 10 microvolt
-                    last = "DOWN"
-                else:
-                    break
-                awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
-                LA.close()
-            awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
-    else:
-        pass
+    #             LA.configureLogic()
+    #             LA.setCaptureDuration(5)
+    #             LA.setupDigitalTriggerCaptureMode(channel=10)
+    #             smu1.configureChannel(1,'VOLT',0.7,0.0001)
+    #             time.sleep(0.5)
+    #             LA.capture()
+    #             LA.exportData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG")
+    #             DATA = saleae_utils.SaleaeData(r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\Calibration\FSLOG\digital.csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK"], 11)
+    #             DATA.loadData() # Load the Data We Just Measured
+    #             DATA.convertDataToHex() # Convert Data to HEX Format
+    #             DATA.readHexAtTriggerEdges() # Read the data at trigger edges (FALLING is default)
+    #             DATA.convertSynchHexdataToInt() # Generate an Int Array of Data too.
+    #             minCodes = max(DATA.synchronousDataInt)
+    #             print("Adjusting Sine Maximum. Current Max Code: " + str(minCodes))
+    #             if minCodes == 0:
+    #                 break
+    #             if minCodes > -1: # We need to check if we are above or below?
+    #                 if last == "DOWN":
+    #                     pass
+    #                     #offset = offset + shiftAmount
+    #                     #break
+    #                 offset = offset + shiftAmount # add 10 microvolt
+    #                 last = "UP"
+    #             elif minCodes < -1:
+    #                 if last == "UP":
+    #                     pass
+    #                     #break
+    #                 offset = offset - shiftAmount # sub 10 microvolt
+    #                 last = "DOWN"
+    #             else:
+    #                 break
+    #             awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
+    #             LA.close()
+    #         awg2.configureChannelALT(1,'SIN',FS_Set/2,offset, frequency)
+    # else:
+    #     pass
         # First, let's grab the max and min values for the sinusoid
         # smu1.configureChannel(1,'VOLT',0.3,0.0001)
         # time.sleep(0.5)

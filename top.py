@@ -4,8 +4,8 @@ import Test_Cases.singleSNDR_imroved as sndrsingle
 import Test_Cases.differentialSNDR as sndrdiff
 
 #TEST = sndrsweep.inputSweepSNDR("debugging")
-#TEST = sndrsingle.singleSNDR(1,"debuggingVpnoise")
-TEST = sndrdiff.differentialSNDR("1F_NOM_6PEG_AD2", 10)
+#TEST = sndrsingle.singleSNDR(1,"sanitychecknew")
+TEST = sndrdiff.differentialSNDR("3FF_FIA_2P_AD2", 10)
 TEST.configureInstruments()
 TEST.run()
 
