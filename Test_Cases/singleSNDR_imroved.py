@@ -18,7 +18,7 @@ class singleSNDR(dft.Test):
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**16
-    inputRange = [0.12]
+    inputRange = [0.09]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "SingleSNDR"
@@ -68,7 +68,7 @@ class singleSNDR(dft.Test):
         self.generateLoggingFolder()
         for voltage in self.inputRange:
             # First Auto Full Scale
-
+            self.awg2.configureChannelALT(1, 'SIN', voltage, voltage/2, self.input_freq)
             CIC_Set = afs.autoFS(voltage, self.input_freq,single=True, negative=False)
             #CIC_Set = 0.7
             # Configure SMU CI-Cell Bias

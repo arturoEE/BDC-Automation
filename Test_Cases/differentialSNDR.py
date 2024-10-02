@@ -26,7 +26,7 @@ class differentialSNDR(dft.Test):
     trigger_channel = 11
     Nsamples = 2**16
     #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09]
+    inputRange = [0.045, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "DifferentialSNDR"
@@ -36,13 +36,14 @@ class differentialSNDR(dft.Test):
     SNDR_Measurements = []
     ENOB_Measurements = []
 
-    def __init__(self, note,freq):
+    def __init__(self, note,freq,vcm):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
         self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
         self.awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
         self.input_freq = fftlib.chooseFin(freq, 1000, 2**16)
         #self.scope1 = scope.SCOPE("USB0::0x2A8D::0x1776::MY58032037::0::INSTR")
         self.note = note
+        self.VCM = vcm
     def configureInstruments(self):
         self.awg1.disableALL()
         self.awg2.disableALL()
@@ -50,7 +51,7 @@ class differentialSNDR(dft.Test):
 
         # Monitoring Buffer 1uA Reference Current
         self.smu1.setMode(0,'VOLT')
-        self.smu1.configureChannel(0,'VOLT', 0, 0.0001)
+        self.smu1.configureChannel(0,'VOLT', self.VCM, 0.0001)
 
         # Configure CI-Cell Voltage
         self.smu1.setMode(1,'VOLT')
@@ -58,7 +59,7 @@ class differentialSNDR(dft.Test):
         #self.smu1.enableALL()
 
         # Input Differential Sinusoid
-        self.awg2.configureChannelALT(2, 'SIN', 0.12, 0.06, self.input_freq)
+        self.awg2.configureChannelALT(2, 'SIN', 0.12, 0.06+self.VCM, self.input_freq)
         self.awg2.setTracking(2, 'INV')
         #self.awg2.configureChannelALT(1,'SIN',0.12,0.06, self.input_freq)
         #self.awg2.setPhase(1,0)
@@ -88,7 +89,7 @@ class differentialSNDR(dft.Test):
         self.generateLoggingFolder()
         for voltage in self.inputRange:
             # First Auto Full Scale
-            self.awg2.configureChannelALT(2, 'SIN', voltage, voltage/2, self.input_freq)
+            self.awg2.configureChannelALT(2, 'SIN', voltage, voltage/2+self.VCM, self.input_freq)
             self.awg2.setTracking(2, 'INV')
             self.awg1.enableALL()
             self.awg2.enableALL()
@@ -132,3 +133,4 @@ class differentialSNDR(dft.Test):
         self.awg2.disableALL()
         self.awg1.disableALL()
         self.smu1.disableALL()
+        print(self.SNDR_Measurements)

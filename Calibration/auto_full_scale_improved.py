@@ -38,7 +38,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     awg1.setPhase(2,0)
     awg1.syncPhase(2)
     awg1.enableALL()
-    #awg2.enableALL()
+    awg2.enableALL()
 
 
     LA = saleae_atd.Saleae(devicePort=10430)
@@ -338,5 +338,5 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     DATA2.convertSynchHexdataToInt() # Generate an Int Array of Data too.
     fig, ax = plt.subplots()
     ax.plot([float(item) for  item in DATA2.synchronousDataTimeStamp], DATA2.synchronousDataInt)
-    #plt.show()
+    plt.show()
     return last_level_under_MaxSlope

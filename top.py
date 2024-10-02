@@ -4,8 +4,9 @@ import Test_Cases.singleSNDR_imroved as sndrsingle
 import Test_Cases.differentialSNDR as sndrdiff
 
 #TEST = sndrsweep.inputSweepSNDR("debugging")
-#TEST = sndrsingle.singleSNDR(1,"sanitychecknew")
-TEST = sndrdiff.differentialSNDR("3FF_FIA_2P_AD2", 10)
+#TEST = sndrsingle.singleSNDR(1,"SingleVSDifferential")
+#for vcm in [0]:
+TEST = sndrdiff.differentialSNDR("SingleVSDifferential", 10, 0)
 TEST.configureInstruments()
 TEST.run()
 
