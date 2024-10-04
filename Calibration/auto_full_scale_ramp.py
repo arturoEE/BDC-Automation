@@ -9,16 +9,16 @@ import matplotlib.pyplot as plt
 def autoFS():
     # Configure Test Equipment:
     awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
-    smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
-    smu2 = smu.SMU("USB0::0x2A8D::0x9501::MY61390603::0::INSTR")
+    #smu1 = #smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
+    #smu2 = #smu.SMU("USB0::0x2A8D::0x9501::MY61390603::0::INSTR")
 
     awg1.disableALL()
-    smu1.disableALL()
+    #smu1.disableALL()
 
     # Configure CI-Cell Voltage
-    smu1.setMode(1,'VOLT')
-    smu1.configureChannel(1,'VOLT',0.3,0.0001)
-    smu1.enableALL()
+    #smu1.setMode(1,'VOLT')
+    #smu1.configureChannel(1,'VOLT',0.3,0.0001)
+    #smu1.enableALL()
 
     awg1.configureChannel(1,'SQU',0.0,0.8,1000)
     awg1.setPhase(1,30)
@@ -36,7 +36,7 @@ def autoFS():
     LA.configureLogic()
     LA.setCaptureDuration(1)
     LA.setupDigitalTriggerCaptureMode(channel=10)
-    smu1.configureChannel(1,'VOLT',0.7,0.0001)
+    #smu1.configureChannel(1,'VOLT',0.7,0.0001)
     SAR_Depth = 10
     SAR_Offset = 0
     SAR_Offset_Increment = (V_CIC_max-V_CIC_min)/2
@@ -54,7 +54,7 @@ def autoFS():
         else:
             SAR_Offset = SAR_Offset - SAR_Offset_Increment
         V_CIC_Try = V_CIC_min + SAR_Offset
-        smu1.configureChannel(1,'VOLT',V_CIC_Try,0.0001)
+        #smu1.configureChannel(1,'VOLT',V_CIC_Try,0.0001)
         time.sleep(2)
         LA = saleae_atd.Saleae(devicePort=10430)
         LA.open()
