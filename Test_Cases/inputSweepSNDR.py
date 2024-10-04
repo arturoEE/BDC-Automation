@@ -68,7 +68,7 @@ class inputSweepSNDR(dft.Test):
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
             self.awg1.enableALL()
             self.smu1.enableALL()
-            time.sleep(0.5) # Time to Settle
+            time.sleep(2) # Time to Settle
             # Take Measurmement
             self.LA.capture()
             # Save Measurement

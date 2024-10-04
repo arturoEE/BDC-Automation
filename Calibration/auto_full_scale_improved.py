@@ -50,15 +50,15 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     
 
     if single:
-        MaxCode = 1022
-        MaxSlope = 1000
+        MaxCode = 1021
+        MaxSlope = 10000
         MinCode = 1
     else:
-        MaxCode = 1022
-        MaxSlope = 1000
+        MaxCode = 1021
+        MaxSlope = 10000
         MinCode = -1022
     V_CIC_max = 0.9
-    V_CIC_min = 0.01
+    V_CIC_min = 0.2
 
     # if single:
     #     if negative==False:
@@ -338,5 +338,5 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     DATA2.convertSynchHexdataToInt() # Generate an Int Array of Data too.
     fig, ax = plt.subplots()
     ax.plot([float(item) for  item in DATA2.synchronousDataTimeStamp], DATA2.synchronousDataInt)
-    plt.show()
+    #plt.show()
     return last_level_under_MaxSlope

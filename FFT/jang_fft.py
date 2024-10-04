@@ -119,7 +119,7 @@ def plotPSD(fs, ydb, n, SNDR,SNR, ENOB, THD):
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("PSD")
     ax.annotate("SNDR="+str("{:.2f}".format(SNDR)), xy=(0.1, 0.8), xycoords="axes fraction")
-    ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
+    #ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
     ax.annotate("THD="+str("{:.2f}".format(THD*100))+"%", xy=(0.1, 0.7), xycoords="axes fraction")
     ax.annotate("ENOB="+str("{:.2f}".format(ENOB)), xy=(0.1, 0.65), xycoords="axes fraction")
     fig.dpi = 100
@@ -133,7 +133,7 @@ def savePSD(fs, ydb, n, SNDR, SNR, ENOB, THD, savefile):
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("PSD")
     ax.annotate("SNDR="+str("{:.2f}".format(SNDR)), xy=(0.1, 0.8), xycoords="axes fraction")
-    ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
+    #ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
     ax.annotate("THD="+str("{:.2f}".format(THD*100))+"%", xy=(0.1, 0.7), xycoords="axes fraction")
     ax.annotate("ENOB="+str("{:.2f}".format(ENOB)), xy=(0.1, 0.65), xycoords="axes fraction")
     fig.dpi = 100

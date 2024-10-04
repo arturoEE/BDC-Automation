@@ -18,7 +18,7 @@ class singleSNDR(dft.Test):
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**16
-    inputRange = [0.09]
+    inputRange = [0.02, 0.04]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "SingleSNDR"
@@ -28,12 +28,13 @@ class singleSNDR(dft.Test):
     SNDR_Measurements = []
     ENOB_Measurements = []
 
-    def __init__(self, freq, note):
+    def __init__(self, freq, note, vcm):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
         self.awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
         self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
         self.input_freq = fftlib.chooseFin(freq, 1000, 2**16)
         self.note = note
+        self.VCM = vcm
     def configureInstruments(self):
         self.awg1.disableALL()
         self.smu1.disableALL()
@@ -47,7 +48,8 @@ class singleSNDR(dft.Test):
         #self.smu1.enableALL()
 
         # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
-        self.awg2.configureChannel(1,'SIN',0.0,self.FS_Set/2,self.input_freq)
+        self.awg2.configureChannelALT(2, 'SIN', self.FS_Set, self.FS_Set/2+self.VCM, self.input_freq)
+        #self.awg2.configureChannel(1,'SIN',0.0,self.FS_Set/2,self.input_freq)
         self.awg1.configureChannel(1,'SQU',0.0,0.4,self.samplerate)
         self.awg1.setPhase(1,30)
         self.awg1.configureChannel(2,'SQU',0.0,0.8,self.samplerate)
@@ -68,10 +70,11 @@ class singleSNDR(dft.Test):
         self.generateLoggingFolder()
         for voltage in self.inputRange:
             # First Auto Full Scale
-            self.awg2.configureChannelALT(1, 'SIN', voltage, voltage/2, self.input_freq)
+            self.awg2.configureChannelALT(1, 'SIN', voltage, voltage/2+self.VCM, self.input_freq)
             CIC_Set = afs.autoFS(voltage, self.input_freq,single=True, negative=False)
             #CIC_Set = 0.7
             # Configure SMU CI-Cell Bias
+            #CIC_Set = 0.7482421875
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
             self.awg1.enableALL()
             self.awg2.enableALL()
