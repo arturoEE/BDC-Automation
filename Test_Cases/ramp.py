@@ -16,9 +16,9 @@ class RAMP(dft.Test):
     samplerate = 1000
     saleae_dev_port = 10430
     trigger_channel = 11
-    Nsamples = 2**12
+    Nsamples = 2**14
     #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.07, 0.035]
+    inputRange = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     testname = "RampDifferential"
     note = ""
@@ -26,23 +26,23 @@ class RAMP(dft.Test):
 
     def __init__(self, note,vcm):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
-        #self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
+        self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
         #self.smu2 = smu.SMU("USB0::0x2A8D::0x9501::MY61390603::0::INSTR")
         self.note = note
         self.VCM = vcm
     def configureInstruments(self):
         self.awg1.disableALL()
-        #self.smu1.disableALL()
+        self.smu1.disableALL()
         #self.smu2.disableALL()
 
         # Monitoring Buffer 1uA Reference Current
-        #self.smu1.setMode(0,'VOLT')
-        #self.smu1.configureChannel(0,'VOLT', self.VCM, 0.0001)
+        self.smu1.setMode(0,'VOLT')
+        self.smu1.configureChannel(0,'VOLT', 0, 0.0001)
 
         # Configure CI-Cell Voltage
-        #self.smu1.setMode(1,'VOLT')
-        #self.smu1.configureChannel(1,'VOLT',0.4,0.0001)
-        ##self.smu1.enableALL()
+        self.smu1.setMode(1,'VOLT')
+        self.smu1.configureChannel(1,'VOLT',0.4,0.001)
+        #self.smu1.enableALL()
         # Clock
         self.awg1.configureChannel(1,'SQU',0.0,0.4,1000)
         self.awg1.setPhase(1,30)
@@ -75,18 +75,18 @@ class RAMP(dft.Test):
             SNRvalues = []
             minMaxCodes = []
 
-            #self.smu2.configureChannel(0,'VOLT',voltage,0.0001)
-            #self.smu2.enableCH1()
+            self.smu1.configureChannel(0,'VOLT',voltage,0.0001)
+            self.smu1.enableCH1()
             time.sleep(0.5)
             # First Auto Full Scale
             self.awg1.enableALL()
             CIC_Set = afs.autoFS()
             # Configure SMU CI-Cell Bias
-            #self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
-            #self.smu1.enableCH2()
+            self.smu1.configureChannel(1,'VOLT',CIC_Set,0.001)
+            self.smu1.enableCH2()
             time.sleep(0.5) # Time to Settle
             for subvoltage in subvoltages:
-                #self.smu2.configureChannel(0,'VOLT',subvoltage,0.0001)
+                self.smu1.configureChannel(0,'VOLT',subvoltage,0.0001)
                 time.sleep(0.5)
                 # Take Measurmement
                 self.LA.capture()
@@ -124,7 +124,8 @@ class RAMP(dft.Test):
                 print("Mean (LSB): "+str(mean) + "1Sigma Noise (LSB): "+ str(s1)+" 3Sigma Noise: "+str(s3))
                 print("SNR: " + str(SNR))
                 print("-------------------------------------------------")
-            noiselib.plotRamp(subvoltages, meanCodevalues, minMaxCodes,sigma1values)
+            #noiselib.plotRamp(subvoltages, meanCodevalues, minMaxCodes,sigma1values)
+            noiselib.saveRamp(subvoltages, meanCodevalues, minMaxCodes,sigma1values,new_data_file+"_Ramp_"+str(voltage)+".png")
             with open(new_data_file+"_FinalResults.csv", 'w', newline='') as f:
                     writer = csv.writer(f)
                     writer.writerows([subvoltages, meanCodevalues, minMaxCodes,sigma1values,SNRvalues])
@@ -134,4 +135,4 @@ class RAMP(dft.Test):
         self.LA.close()
         #self.smu2.disableALL()
         self.awg1.disableALL()
-        #self.smu1.disableALL()
+        self.smu1.disableALL()

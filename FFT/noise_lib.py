@@ -43,3 +43,14 @@ def plotRamp(setofinputs, setofmeans,setofpeaks, setofsigma1):
     ax1.plot(setofinputs, setofsigma1)
     ax1.set_title('RMS Noise (Voltage) versus Input')
     plt.show()
+
+def saveRamp(setofinputs, setofmeans,setofpeaks, setofsigma1,savefile):
+    fig, (ax0, ax1) = plt.subplots(nrows=2, sharex=False)
+    # Plot 1 Ramp with Error Bars
+    setofpeaks = np.array(setofpeaks).T
+    ax0.errorbar(setofinputs, setofmeans, yerr=setofpeaks, fmt='-o')
+    ax0.set_title('Output code versus Input')
+    # Plot 2 1Sigma Noise vs Input?
+    ax1.plot(setofinputs, setofsigma1)
+    ax1.set_title('RMS Noise (Voltage) versus Input')
+    plt.savefig(savefile)

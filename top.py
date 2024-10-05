@@ -6,7 +6,7 @@ import Test_Cases.ramp as ramp
 
 #TEST = sndrsweep.inputSweepSNDR("debugging")
 #TEST = sndrsingle.singleSNDR(0.5,"Test_1KVCM_FIXEDCIC",0.02)
-TEST = ramp.RAMP("Ramp_FIA_10G_0OFF_FP",0.0)
+TEST = ramp.RAMP("Ramp_FT_10G_0OFF_SRS0_1Hz_5kHzThor",0.0)
 #for vcm in [0]:
 #TEST = sndrdiff.differentialSNDR("3FF_FIA_6PEG_AD2_NEW", 301, 0)
 TEST.configureInstruments()
