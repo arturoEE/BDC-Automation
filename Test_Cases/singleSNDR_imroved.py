@@ -18,7 +18,7 @@ class singleSNDR(dft.Test):
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**16
-    inputRange = [0.07, 0.02, 0.04]
+    inputRange = [0.07]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
     testname = "SingleSNDR"
@@ -32,6 +32,7 @@ class singleSNDR(dft.Test):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
         self.awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
         self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
+        self.smu2 = smu.SMU("USB0::0x2A8D::0x9501::MY61390603::0::INSTR")
         self.input_freq = fftlib.chooseFin(freq, 1000, 2**16)
         self.note = note
         self.VCM = vcm
@@ -46,6 +47,10 @@ class singleSNDR(dft.Test):
         self.smu1.setMode(1,'VOLT')
         self.smu1.configureChannel(1,'VOLT',0.4,0.0001)
         #self.smu1.enableALL()
+
+        self.smu2.setMode(0,'VOLT')
+        self.smu2.configureChannel(0,'VOLT',0.0,0.001)
+        self.smu2.enableCH1()
 
         # Clock Waveform 250 Hz and Input VEXC Sinusoid at FS
         self.awg2.configureChannelALT(2, 'SIN', self.FS_Set, self.FS_Set/2+self.VCM, self.input_freq)

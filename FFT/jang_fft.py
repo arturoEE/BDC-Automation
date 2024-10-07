@@ -79,6 +79,7 @@ def calcENOB(wavein, fin, fs, win='blackman'):
 
     ynoise = y-ysignal
     ynoise_only = y-ysignal-ysignal2-ysignal3-ysignal4-ysignal5-ysignal6-ysignal7-ysignal8-ysignal9-ysignal10-ysignal11-ysignal12-ysignal13-ysignal14
+    ynoise_only = ynoise_only - np.mean(ynoise_only)
     ywindow = np.array(ywindow)
 
     RMSsignal = np.linalg.norm(np.fft.fft(ysignal*ywindow),2)

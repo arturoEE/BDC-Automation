@@ -18,9 +18,9 @@ class RAMP(dft.Test):
     trigger_channel = 11
     Nsamples = 2**14
     #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1]
+    inputRange = [0.02]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
-    testname = "RampDifferential"
+    testname = "RampDifferentialTrue"
     note = ""
     temploggingfolder = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","TEMPLOG")
 
