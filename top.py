@@ -5,20 +5,20 @@ import Test_Cases.differentialSNDR as sndrdiff
 import Test_Cases.ramp as ramp
 import Test_Cases.rampDiffPrompt as rampp
 import Test_Cases.rampDiff as rampd
+import Test_Cases.Resistor as res
+import Test_Cases.spine as spine
+import time
+import Test_Cases.differentialSNDR_1awg as sndrdiff2
+import Test_Cases.singleSNDR_new as sndrsingle
+import Test_Cases.singleSNDR_new_moving_mean2awg as sndrsingle_mm
+#TEST = sndrdiff.differentialSNDR("SNDR_AD8_3FF_FIA_"+str(10)+""+str(0)+"VCM",10, 0.0)
 
-#TEST = sndrsweep.inputSweepSNDR("debugging")
-TEST = sndrsingle.singleSNDR(10,"3FF_FIA_0VCM_Debug",0.0)
-#TEST = ramp.RAMP("Ramp_Debg",0.0)
-#for vcm in [0]:
-#vcms = [0.01, 0.02, 0.03, 0.04, 0.05]
-#for vcm in vcms:
-#TEST = sndrdiff.differentialSNDR("6PEG_AD2_FILT_"+str(vcm)+"VCM_", 10, vcm)
-    #TEST = rampd.RAMPD("3FF_6PEG_FIA_VCM_"+str(vcm)+"_",0.02)
-TEST.configureInstruments()
-TEST.run()
-#input("Next Case: "+case+". Press ENTER to continue")
-
-
-# Notes:
-# AFC Really needs to be a method of test i think..
-# Variables need to be carefully considered...
+#while True:
+#for freq in [1, 10, 100, 200, 300, 400, 499]:
+#TEST = sndrsingle.singleSNDR("new3FF_FT_"+str(10)+"HZ_VEXVC_hiz_AD7_"+str(0)+"VCM_really_zero_os",10, -0.0005) # -0.001 for 1 code
+freq = 10
+#TEST = sndrsingle_mm.singleSNDR_mm("ResCIC_PeakSNDR_new3FF_FT_"+str(freq)+"HZ_VEXVC_hiz_4Really_"+str(0),freq, -0.0018) # -0.001 for 1 code
+for vcm in [ 0.0]:
+    TEST = sndrdiff.differentialSNDR("FIA_2p_10G_"+str(vcm)+"VCM",10, vcm)
+    TEST.configureInstruments()
+    TEST.run()

@@ -1,4 +1,4 @@
-function [Enob, Ydb, SNDR,Enob_noise_only,SNR] = calcENOB(input,Fin,Fs, Win)
+function [Enob, Ydb, Ydbn, SNDR,Enob_noise_only,SNR] = calcENOB(input,Fin,Fs, Win)
 
 
 %% input should be single row %%
@@ -65,6 +65,8 @@ Enob_noise_only = (SNR - 1.76)/6.02;
 
 
 Ydb = 20*log10(abs(fft(y.*ywindow)));
+Ydbn = 20*log10(abs(fft(ynoise.*ywindow)));
+
 %subplot(211);
 %plot(ydB(1:floor(nSample/2)));
 %subplot(212);

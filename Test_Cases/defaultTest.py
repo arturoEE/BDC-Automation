@@ -28,7 +28,10 @@ class Test():
         # First We copy the data
         fullTempPath = os.path.join(templogdir,self.saleaedataname)
         fullResultPath = os.path.join(self.resultsdir,note)
-        os.mkdir(fullResultPath)
+        try:
+            os.mkdir(fullResultPath)
+        except:
+            pass
         csvFullResultPath = os.path.join(fullResultPath,note+".csv")
         shutil.copy(fullTempPath, csvFullResultPath)
         return os.path.join(fullResultPath,note)

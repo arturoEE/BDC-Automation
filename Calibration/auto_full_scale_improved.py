@@ -11,11 +11,11 @@ import statistics
 
 def autoFS(FS_Set, frequency, single=True, negative=False):
     # Configure Test Equipment:
-    awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
+    #awg1 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
     smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
-    awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
+    #awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
 
-    awg1.disableALL()
+    #awg1.disableALL()
     smu1.disableALL()
     # Monitoring Buffer 1uA Reference Current
     #smu1.setMode(0,'CURR')
@@ -32,13 +32,13 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     #awg2.configureChannelALT(2,'SIN',FS_Set/2,FS_Set/4, frequency)
     #awg2.setPhase(2,180)
     #awg2.syncPhase(2)
-    awg1.configureChannel(1,'SQU',0.0,0.8,1000)
-    awg1.setPhase(1,30)
-    awg1.configureChannel(2,'SQU',0.0,0.8,1000)
-    awg1.setPhase(2,0)
-    awg1.syncPhase(2)
-    awg1.enableALL()
-    awg2.enableALL()
+    #awg1.configureChannel(1,'SQU',0.0,0.8,1000)
+    #awg1.setPhase(1,350)
+    #awg1.configureChannel(2,'SQU',0.0,0.8,1000)
+    #awg1.setPhase(2,0)
+    #awg1.syncPhase(2)
+    #awg1.enableALL()
+    #awg2.enableALL()
 
 
     LA = saleae_atd.Saleae(devicePort=10430)
@@ -277,7 +277,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
     LA.configureLogic()
     LA.setCaptureDuration(3/frequency)
     LA.setupDigitalTriggerCaptureMode(channel=10)
-    smu1.configureChannel(1,'VOLT',0.7,0.0001)
+    smu1.configureChannel(1,'VOLT',0.7,0.001)
     SAR_Depth = 9
     SAR_Offset = 0
     SAR_Offset_Increment = (V_CIC_max-V_CIC_min)/2
@@ -296,7 +296,8 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
         else:
             SAR_Offset = SAR_Offset - SAR_Offset_Increment
         V_CIC_Try = V_CIC_min + SAR_Offset
-        smu1.configureChannel(1,'VOLT',V_CIC_Try,0.0001)
+        V_CIC_Try = 0.645
+        smu1.configureChannel(1,'VOLT',V_CIC_Try,0.001)
         time.sleep(2)
         LA = saleae_atd.Saleae(devicePort=10430)
         LA.open()
@@ -320,7 +321,7 @@ def autoFS(FS_Set, frequency, single=True, negative=False):
         mind = min(DATA.synchronousDataInt)
         peakCodes = max([abs(maxd),abs(mind)])
         diff = np.gradient(DATA.synchronousDataInt)
-        print("Trying Voltage: "+ str(V_CIC_Try)+" Current Peak Code: "+str(peakCodes) +" Max Slope: " + str(max(diff)))
+        print("Trying Voltage: "+ str(V_CIC_Try)+" Current Peak Code: "+str(peakCodes) +" Max Slope: " + str(max(diff)) + " Min Code: "+str(mind))
         if max(diff) >= MaxSlope or abs(peakCodes) > MaxCode:
             Smaller = True
         else:

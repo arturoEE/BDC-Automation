@@ -18,7 +18,7 @@ class RAMP(dft.Test):
     trigger_channel = 11
     Nsamples = 2**14
     #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.02]
+    inputRange = [0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.06, 0.07, 0.08, 0.1]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     testname = "RampDifferentialTrue"
     note = ""
@@ -81,6 +81,8 @@ class RAMP(dft.Test):
             # First Auto Full Scale
             self.awg1.enableALL()
             CIC_Set = afs.autoFS()
+            if CIC_Set > 0.77:
+                CIC_Set = 0.77
             # Configure SMU CI-Cell Bias
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.001)
             self.smu1.enableCH2()

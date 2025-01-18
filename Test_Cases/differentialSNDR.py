@@ -17,6 +17,15 @@ import Calibration.auto_full_scale_improved as afs
 #Scope Wavegen: Clock
 # AWG1: VP
 # AWG2: Vn
+def correctWaveform(waveform):
+    idx = 0
+    minwave = min(waveform)
+    waveformcorrected = waveform
+    for point in waveform:
+        if point <= minwave:
+            waveformcorrected[idx] = waveform[idx-1]+(waveform[idx+1]-waveform[idx-1])/2
+        idx = idx +1
+    return waveformcorrected
 
 class differentialSNDR(dft.Test):
     samplerate = 1000
@@ -26,21 +35,31 @@ class differentialSNDR(dft.Test):
     trigger_channel = 11
     Nsamples = 2**16
     #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.07, 0.06, 0.05, 0.045, 0.04, 0.035, 0.03, 0.025, 0.02, 0.015, 0.01, 0.08]
+    inputRange = [0.128]#[0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]
+    #inputRange = [0.14, 0.16, 0.18, 0.2]
+
+    #inputRange = [0.07]
+    #inputRange = [0.104]
+    #inputRange = [0.02]
+    subvoltage_record =[]
+    #inputRange = [0.07]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     #resultsfolderpath = "C:\\Users\\eecis\\Desktop\\Arturo_Sem_Project\\Automation_git\\Results"
-    testname = "DifferentialSNDR"
+    testname = "DifferentialSNDR_INLDNL"
     note = ""
     #temploggingfolder = r"C:\Users\eecis\Desktop\Arturo_Sem_Project\Automation_git\BDC-Automation\TEMPLOG" # TEMPLOG folder holds temp data?
     temploggingfolder = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","TEMPLOG")
     SNDR_Measurements = []
     ENOB_Measurements = []
+    SNR_Measurements = []
+    SFDR_Measurements = []
+    Measurements = []
 
     def __init__(self, note,freq,vcm):
         self.awg1 = awg.AWG("USB0::0x0957::0x5707::MY59004759::0::INSTR")
         self.smu1 = smu.SMU("USB0::0x2A8D::0x9501::MY61390158::0::INSTR")
         self.awg2 = awg.AWG("USB0::0x0957::0x5707::MY53801784::0::INSTR")
-        self.input_freq = fftlib.chooseFin(freq, 1000, 2**16)
+        self.input_freq = fftlib.chooseFin(freq, 1000, self.Nsamples)
         #self.scope1 = scope.SCOPE("USB0::0x2A8D::0x1776::MY58032037::0::INSTR")
         self.note = note
         self.VCM = vcm
@@ -51,19 +70,19 @@ class differentialSNDR(dft.Test):
 
         # Monitoring Buffer 1uA Reference Current
         self.smu1.setMode(0,'VOLT')
-        self.smu1.configureChannel(0,'VOLT', self.VCM, 0.0001)
+        self.smu1.configureChannel(0,'VOLT', self.VCM, 0.001)
 
         # Configure CI-Cell Voltage
         self.smu1.setMode(1,'VOLT')
-        self.smu1.configureChannel(1,'VOLT',0.4,0.0001)
+        self.smu1.configureChannel(1,'VOLT',0.4,0.001)
         #self.smu1.enableALL()
 
         # Input Differential Sinusoid
         self.awg2.configureChannelALT(2, 'SIN', 0.12, 0.06+self.VCM, self.input_freq)
         self.awg2.setTracking(2, 'INV')
-        #self.awg2.configureChannelALT(1,'SIN',0.12,0.06, self.input_freq)
+        #self.awg2.configureChannelALT(1,'SIN',0.02,0.03, self.input_freq)
         #self.awg2.setPhase(1,0)
-        #self.awg2.configureChannelALT(2,'SIN',0.12,0.06, self.input_freq)
+        #self.awg2.configureChannelALT(2,'SIN',0.02,0.03, self.input_freq)
         #self.awg2.setPhase(2,180)
         #self.awg2.syncPhase(2)
         # Clock
@@ -85,52 +104,101 @@ class differentialSNDR(dft.Test):
         self.LA.setCaptureDuration(1/self.samplerate*self.Nsamples)
         self.LA.setupDigitalTriggerCaptureMode(channel=self.trigger_channel)
     def run(self):
-        self.input_freq = fftlib.chooseFin(self.input_freq, 1000, 2**16)
+        self.input_freq = fftlib.chooseFin(self.input_freq, 1000, self.Nsamples)
         self.generateLoggingFolder()
         for voltage in self.inputRange:
+            subvoltages = np.linspace(0.005, voltage, 20)
+            #subvoltages = [voltage]
+            #subvoltages = [0.05, 0.025, 0.0125]
+            fixedsubvoltages = np.linspace(4*10**(-3), 4*10**(-2), 5)
+            #subvoltages = [0.02]
+            subvoltages = np.append(subvoltages,fixedsubvoltages)
+            subvoltages = np.append(subvoltages,voltage*1.1)
+            subvoltages = np.append(subvoltages,voltage*0.95)
+            #subvoltages = [voltage]
             # First Auto Full Scale
-            self.awg2.configureChannelALT(2, 'SIN', voltage, voltage/2+self.VCM, self.input_freq)
-            self.awg2.setTracking(2, 'INV')
+            #self.awg2.configureChannelALT(2, 'SIN', voltage, voltage/2+self.VCM, self.input_freq)
+            #self.awg2.setTracking(2, 'INV')
+            self.awg2.configureChannelALT(1,'SIN',voltage*1.0, voltage/2+self.VCM, self.input_freq)
+            self.awg2.setPhase(1,0)
+            self.awg2.configureChannelALT(2,'SIN',voltage*1.0, voltage/2+self.VCM, self.input_freq)
+            self.awg2.setPhase(2,180)
+            self.awg2.syncPhase(2)
             self.awg1.enableALL()
             self.awg2.enableALL()
             #self.awg2.setFrequency(2,self.input_freq)
-            CIC_Set = afs.autoFS(voltage, self.input_freq, single=False, negative=False)
+            #CIC_Set = afs.autoFS(voltage, self.input_freq, single=False, negative=False)
+            CIC_Set = 0.645
+            #CIC_Set = 0.7482421875
+            #if CIC_Set > 0.76:
+            #    CIC_Set = 0.76
+
+            # 730mV for 35mV, 20mV CM 3FF FIA
+            # 770mV for 20mV, 20mV CM 3FF FIA
             #CIC_Set = 0.7
             # Configure SMU CI-Cell Bias
-            self.smu1.configureChannel(1,'VOLT',CIC_Set,0.0001)
+            self.smu1.configureChannel(1,'VOLT',CIC_Set,0.001)
             self.smu1.enableCH2()
-            time.sleep(0.5) # Time to Settle
-            # Take Measurmement
-            self.LA.capture()
-            # Save Measurement
-            note = "Input_v"+str(voltage)+"_f"+str(self.input_freq)
-            self.LA.exportData(self.temploggingfolder)
-            new_data_file = self.saveData(self.temploggingfolder,note)
-            # Post Process Measurement
-            DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK", "D10"], self.trigger_channel)
-            DATA.loadData()
-            DATA.convertDataToHex()
-            DATA.readHexAtTriggerEdges()
-            DATA.convertSynchHexdataToInt()
-            waveform_to_save = [[float(item) for  item in DATA.synchronousDataTimeStamp], fftlib.convertCodeToVoltage(10,self.FS_Set, DATA.synchronousDataInt)]
-            # Save Post Processed Data
-            with open(new_data_file+"_post_processed.csv", 'w', newline='') as f:
-                writer = csv.writer(f)
-                writer.writerows(waveform_to_save)
-            #SNDR Time
-            [timestamps, waveform] = fftlib.readWaveformCSV(new_data_file+"_post_processed.csv")
-            fs, Ydb, SNDR, Enob, SNR, Enob_noise_only, THD, n = fftlib.convertWaveformToPSD(timestamps, waveform, self.input_freq)
-            self.SNDR_Measurements.append(SNDR)
-            self.ENOB_Measurements.append(Enob)
-            #print(str(binLow) + ", "+str(binHigh))
-            print("SNDR: "+ str(SNDR)+" ENOB: "+str(Enob))
-            # Save PSD Image Annotated with ENOB and SNDR
-            fftlib.savePSD(fs, Ydb, n, SNDR, SNR, Enob, THD,new_data_file+"_SNDR_"+str(CIC_Set)+".png")
-            # Clean Up
+            time.sleep(10) # Time to Settle
+            subvoltage_list = []
+            for subvoltage in subvoltages:
+                self.awg2.configureChannelALT(1,'SIN',subvoltage*1.0, subvoltage/2+self.VCM, self.input_freq)
+                self.awg2.setPhase(1,0)
+                self.awg2.configureChannelALT(2,'SIN',subvoltage*1.0, subvoltage/2+self.VCM, self.input_freq)
+                self.awg2.setPhase(2,180)
+                self.awg2.syncPhase(2)
+                time.sleep(1)
+                # Take Measurmement
+                self.LA.capture()
+                # Save Measurement
+                note = "Input_v"+str(voltage)+"Sub_v"+str(subvoltage)+"_f"+str(self.input_freq)
+                self.LA.exportData(self.temploggingfolder)
+                new_data_file = self.saveData(self.temploggingfolder,note)
+                # Post Process Measurement
+                DATA = saleae_utils.SaleaeData(new_data_file+".csv", ["D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","CLK", "D10"], self.trigger_channel)
+                DATA.loadData()
+                DATA.convertDataToHex()
+                DATA.readHexAtTriggerEdges()
+                DATA.convertSynchHexdataToInt()
+                fig, ax = plt.subplots()
+                #for idx, val in enumerate(DATA.synchronousDataInt):
+                #    if DATA.synchronousDataInt[idx] ==0:
+                #        print(DATA.synchronousDataInt[idx])
+                #        DATA.synchronousDataInt[idx] = DATA.synchronousDataInt[idx]+20
+                waveform_to_save = [[float(item) for  item in DATA.synchronousDataTimeStamp], fftlib.convertCodeToVoltage(10,self.FS_Set, DATA.synchronousDataInt)]
+                # Save Post Processed Data
+                with open(new_data_file+"_post_processed.csv", 'w', newline='') as f:
+                    writer = csv.writer(f)
+                    writer.writerows(waveform_to_save)
+                #SNDR Time
+                [timestamps, waveform] = fftlib.readWaveformCSV(new_data_file+"_post_processed.csv")
+                waveform = correctWaveform(waveform)
+                ax.plot(timestamps, waveform)
+                #plt.show()
+                fs, Ydb, SNDR, Enob, SNR, Enob_noise_only, THD, n, SFDR = fftlib.convertWaveformToPSD(timestamps, waveform, self.input_freq)
+                self.subvoltage_record.append(subvoltage)
+                self.SNDR_Measurements.append(SNDR)
+                subvoltage_list.append(SNDR)
+                self.ENOB_Measurements.append(Enob)
+                self.SNR_Measurements.append(SNR)
+                self.SFDR_Measurements.append(SFDR)
+                #print(str(binLow) + ", "+str(binHigh))
+                print("SNDR: "+ str(SNDR)+" ENOB: "+str(Enob))
+                # Save PSD Image Annotated with ENOB and SNDR
+                fftlib.savePSD(fs, Ydb, n, SNDR, SNR, Enob, THD,new_data_file+"_SNDR_"+str(CIC_Set)+".png")
+                # Clean Up
+                plt.close('all')
+            self.Measurements.append(subvoltage_list)
         self.teardown() # Take Down Simulation Setup
     def teardown(self):
         self.LA.close()
         self.awg2.disableALL()
         self.awg1.disableALL()
         self.smu1.disableALL()
+        print("SNDR")
         print(self.SNDR_Measurements)
+        print("SNR")
+        print(self.SNR_Measurements)
+        print("SFDR")
+        print(self.SFDR_Measurements)
+        print(self.Measurements)

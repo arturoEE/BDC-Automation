@@ -17,8 +17,8 @@ class RAMPD(dft.Test):
     saleae_dev_port = 10430
     trigger_channel = 11
     Nsamples = 2**14
-    #[0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.1, 0.11, 0.12]
-    inputRange = [0.01, 0.02, 0.03, 0.04]
+    #0.005, 0.01, 0.015, 0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.06,
+    inputRange = [0.04, 0.07, 0.08, 0.1]
     resultsfolderpath = os.path.join("c:"+os.sep,"Users","eecis","Desktop","Arturo_Sem_Project","Automation_git","BDC-Automation","Results")
     testname = "RampDifferentialPrompt"
     note = ""
@@ -36,8 +36,8 @@ class RAMPD(dft.Test):
         #self.smu2.disableALL()
 
         # Monitoring Buffer 1uA Reference Current
-        self.smu1.setMode(0,'VOLT')
-        self.smu1.configureChannel(0,'VOLT', 0, 0.0001)
+        self.smu1.setMode(0,'CURR')
+        self.smu1.configureChannel(0,'CURR', 0.000001, 0.9)
 
         self.smu2.setMode(0,'VOLT')
         self.smu2.configureChannel(0,'VOLT', self.VCM, 0.0001)
@@ -57,7 +57,7 @@ class RAMPD(dft.Test):
         #self.awg1.enableALL()
 
         # Until we have a way of controlling the scan-chain via python
-        input("Press Enter after configuring scan chain to continue...")
+        #input("Press Enter after configuring scan chain to continue...")
 
         self.LA = saleae_atd.Saleae(devicePort=self.saleae_dev_port)
         self.LA.open()
@@ -87,9 +87,12 @@ class RAMPD(dft.Test):
             # First Auto Full Scale
             self.awg1.enableALL()
             CIC_Set = afs.autoFS()
+            #CIC_Set = 0.8234374999999998
+            if CIC_Set > 0.77:
+                CIC_Set = 0.77
             # Configure SMU CI-Cell Bias
             self.smu1.configureChannel(1,'VOLT',CIC_Set,0.001)
-            self.smu1.enableCH2()
+            self.smu1.enableALL()
             time.sleep(0.5) # Time to Settle
             negative = True
             for subvoltage in subvoltages:
@@ -97,9 +100,11 @@ class RAMPD(dft.Test):
                     self.smu2.configureChannel(1,'VOLT',self.VCM,0.001)
                     if subvoltage >= 0:
                         negative = False
+                        self.smu2.configureChannel(1,'VOLT',self.VCM+subvoltage,0.001)
+                        self.smu2.configureChannel(0,'VOLT',self.VCM,0.001)
                     else:
                         subvoltage = subvoltage*-1.0
-                    self.smu2.configureChannel(0,'VOLT',self.VCM+subvoltage,0.001)
+                        self.smu2.configureChannel(0,'VOLT',self.VCM+subvoltage,0.001)
                 else:
                     self.smu2.configureChannel(1,'VOLT',self.VCM+subvoltage,0.001)
                     self.smu2.configureChannel(0,'VOLT',self.VCM,0.001)
@@ -119,6 +124,8 @@ class RAMPD(dft.Test):
                 DATA.convertDataToHex()
                 DATA.readHexAtTriggerEdges()
                 DATA.convertSynchHexdataToInt()
+                if not negative:
+                    DATA.synchronousDataInt = [0.96*x+72.46 for x in DATA.synchronousDataInt]
                 waveform_to_save = [[float(item) for  item in DATA.synchronousDataTimeStamp], noiselib.convertCodeToVoltage(11,voltage*2, DATA.synchronousDataInt)]
                 # Save Post Processed Data
                 with open(new_data_file+"_post_processed.csv", 'w', newline='') as f:

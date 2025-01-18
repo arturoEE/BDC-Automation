@@ -2,7 +2,7 @@ import csv
 import numpy as np
 
 class SaleaeData():
-    def __init__(self,datafile, channelLabels, trigger, triggerType="RISING"):
+    def __init__(self,datafile, channelLabels, trigger, triggerType="FALLING"):
         self.filepath = ""
         self.channelLabel = {} # Dictionary Corresponding physical channel addresses to their labels. Ordered.
         self.triggerChannel = None # Channel to subsample our data on event.
@@ -32,6 +32,7 @@ class SaleaeData():
                 continue
             if val != val_last:
                 if self.triggerType == "RISING" and val > val_last:
+                    #if self.dataHEX[idx][1] != "0x0": ## Remove
                     trigger_points.append(idx)
                     val_last = val
                     continue
@@ -74,7 +75,7 @@ class SaleaeData():
             val_to_append = None
             polarity = 1
             if int(self.synchronousSignBit[idx]) == 1:
-                val_to_append = val
+                val_to_append = val+1 # +1 so not 2 zero codes?
                 polarity = 1
             elif int(self.synchronousSignBit[idx]) == 0:
                 val_to_append = 1023-val
@@ -88,6 +89,33 @@ class SaleaeData():
                 continue ## Skip the Header line
             binstr = ""
             for element in dataline[1:11]: ## hwo 2 handle the negative data?
+                binstr = binstr+str(element)
+            binstr = binstr[::-1]
+            signbit = dataline[11]
+            hexstr = hex(int(binstr,2))
+            self.dataHEX.append([dataline[0], hexstr,signbit, dataline[self.triggerChannel+1]])
+    def convertDataToHex9b(self):
+        for i, dataline in enumerate(self.data):
+            if i == 0:
+                continue ## Skip the Header line
+            binstr = ""
+            #print(dataline)
+            #print(dataline[1:11])
+            for j, element in enumerate(dataline[1:11]): ## hwo 2 handle the negative data?
+                #if j > 0:
+                binstr = binstr+str(element)
+            #print(binstr)
+            binstr = binstr[::-2]
+            signbit = dataline[11]
+            hexstr = hex(int(binstr,2))
+            #break
+            self.dataHEX.append([dataline[0], hexstr,signbit, dataline[self.triggerChannel+1]])
+    def convertDataToHex8b(self):
+        for i, dataline in enumerate(self.data):
+            if i == 0:
+                continue ## Skip the Header line
+            binstr = ""
+            for element in dataline[3:11]: ## hwo 2 handle the negative data?
                 binstr = binstr+str(element)
             binstr = binstr[::-1]
             signbit = dataline[11]

@@ -24,6 +24,19 @@ def findNoiseValue(codes):
     sigma3 = (np.percentile(error, 50+34.1+13.6+2.1, axis=0)- np.percentile(error, 50-34.1-13.6-2.1, axis=0))/2.
     return [np.mean(codes), np.std(error), sigma2, sigma3]
 
+def findNoiseValueRemoveStrangeCodes(codes):
+    codes = [x for x in codes if x!=2047]
+    codes = [x for x in codes if x!=1023]
+    codes = [x for x in codes if x!=1024]
+    codes = [x for x in codes if x!=0]
+    codes = [x for x in codes if x!=-1023]
+    codes = [x for x in codes if x!=-1024]
+    error = codes - np.mean(codes)
+    sigma1 = (np.percentile(error, 50+34.1, axis=0)- np.percentile(error, 50-34.1, axis=0))/2.
+    sigma2 = (np.percentile(error, 50+34.1+13.6, axis=0)- np.percentile(error, 50-34.1-13.6, axis=0))/2.
+    sigma3 = (np.percentile(error, 50+34.1+13.6+2.1, axis=0)- np.percentile(error, 50-34.1-13.6-2.1, axis=0))/2.
+    return [np.mean(codes), np.std(error), sigma2, sigma3]
+
 def calculateSNR(mean, sigma1):
     print(mean)
     print(sigma1)

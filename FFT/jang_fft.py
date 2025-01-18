@@ -59,8 +59,9 @@ def calcENOB(wavein, fin, fs, win='blackman'):
     y = np.array(y)
     y = y - np.mean(y)
 
-    ywindow = np.blackman(nSample)
-
+    #ywindow = np.blackman(nSample)
+    ywindow = signal.windows.boxcar(nSample)
+    #ywindow = 1
     thing = y*ywindow
     ysignal = nSample/np.sum(ywindow)*sinusx(thing,fin/fs,nSample)
     ysignal2 = nSample/np.sum(ywindow)*sinusx(thing,2*fin/fs,nSample)
@@ -79,6 +80,16 @@ def calcENOB(wavein, fin, fs, win='blackman'):
 
     ynoise = y-ysignal
     ynoise_only = y-ysignal-ysignal2-ysignal3-ysignal4-ysignal5-ysignal6-ysignal7-ysignal8-ysignal9-ysignal10-ysignal11-ysignal12-ysignal13-ysignal14
+    noise = np.std(ynoise_only)
+    SNR_alt = 10*math.log10((1023/2/np.sqrt(2))**2/noise**2)
+    print("Noise: "+ str(noise) +" SNR: "+ str(SNR_alt))
+    # fig, ax = plt.subplots()
+    # ax.plot(ysignal)
+    # fig.suptitle("PSD for measurement")
+    # ax.set_xlabel("Frequency (Hz)")
+    # ax.set_ylabel("PSD")
+    # plt.show()
+    # input()
     ynoise_only = ynoise_only - np.mean(ynoise_only)
     ywindow = np.array(ywindow)
 
@@ -109,8 +120,17 @@ def convertWaveformToPSD(timestamp,waveform, fin):
     dout = waveform[offset:nSample+offset]
     [Enob, Ydb, SNDR,Enob_noise_only,SNR, THD] = calcENOB(dout, fin, fs, 'blackman')
     Ydb = Ydb - max(Ydb)
-    print("SNDR: "+str(SNDR)+" ENOB: "+ str(Enob) + " SNR: "+str(SNR))
-    return [fs, Ydb, SNDR, Enob, SNR, Enob_noise_only, THD, nSample]
+    SFDR = -1*max(Ydb[750:int(nSample/2)]) # 750
+    #SFDR = -1*max(np.append(Ydb[0:6610],Ydb[6625:int(nSample/2)]))
+    print("SNDR: "+str(SNDR)+" ENOB: "+ str(Enob) + " SNR: "+str(SNR)+ " SFDR: "+str(SFDR))
+    # fig, ax = plt.subplots()
+    # ax.plot(Ydb[0:int(nSample/2)])
+    # fig.suptitle("PSD for measurement")
+    # ax.set_xlabel("Frequency (Hz)")
+    # ax.set_ylabel("PSD")
+    # plt.show()
+    # input()
+    return [fs, Ydb, SNDR, Enob, SNR, Enob_noise_only, THD, nSample, SFDR]
 
 def plotPSD(fs, ydb, n, SNDR,SNR, ENOB, THD):
     plt.style.use('seaborn-v0_8-deep')
@@ -134,7 +154,7 @@ def savePSD(fs, ydb, n, SNDR, SNR, ENOB, THD, savefile):
     ax.set_xlabel("Frequency (Hz)")
     ax.set_ylabel("PSD")
     ax.annotate("SNDR="+str("{:.2f}".format(SNDR)), xy=(0.1, 0.8), xycoords="axes fraction")
-    #ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
+    ax.annotate("SNR="+str("{:.2f}".format(SNR)), xy=(0.1, 0.75), xycoords="axes fraction")
     ax.annotate("THD="+str("{:.2f}".format(THD*100))+"%", xy=(0.1, 0.7), xycoords="axes fraction")
     ax.annotate("ENOB="+str("{:.2f}".format(ENOB)), xy=(0.1, 0.65), xycoords="axes fraction")
     fig.dpi = 100

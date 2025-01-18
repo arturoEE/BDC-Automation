@@ -1,6 +1,6 @@
 % clear all;
 % clc;
-% close all;
+close all;
 %% Plot Settings
 plotWidth = 15.5; % multipath
 plotHeight = 11.25;
@@ -16,10 +16,6 @@ posx = 0;
 posy = 0;
 fontsize = 14; 
 fontsize_title = 14; 
-colors = linspecer(10,'qualitative');
-red = linspecer(5,'red');
-blue = linspecer(5,'blue');
-green = linspecer(5,'green');
 diamondsize = 40;
 markersize1 = 20;
 markersize2 = 25;
@@ -28,22 +24,23 @@ gridwidth = 1;
 gridalpha = 0.4;
 resolution = 2500;
 %%
-nBit = 8;
+nBit = 10;
 vmax = 60e-3;
 vmin = 0;
 range = [vmin vmax];
 offset = mean(range);
+offset = 1;
 amp = (vmax - vmin)/2 * 1;
 nSample = 2^16;
-fs = round(1/(sine.Times(2)-sine.Times(1)));
-% fs = 1000;
-fin = 500;
+fs = round(1/(sine(2,1)-sine(1,1)));
+fs = 1000;
+fin = 101;
 fin = chooseFin(fin, fs, nSample);
 t = 0:1/fs:(nSample-1)/fs;
 ain = amp * sin(2*pi*fin*t) + offset;
 % dout = adc(ain, nBit, range);
 offset = 1;
-dout = sine.Value(offset:nSample+offset);
+dout = sine(offset:nSample+offset,2);
 
 % %% fix MSB
 % l = length(dout);
@@ -62,18 +59,20 @@ dout = sine.Value(offset:nSample+offset);
 % dout_fixed = dout + add.';
 
 %%
-[Enob, Ydb, SNDR] = calcENOB(dout, fin, fs,'blackman');
+[Enob, Ydb, Ydbn, SNDR] = calcENOB(dout, fin, fs);
 Ydb = Ydb - max(Ydb);
+Ydbn = Ydbn - max(Ydb);
 figure(4)
 hold on
 box on
 plot(linspace(0,fs/2,nSample/2), Ydb(1:nSample/2),'LineWidth',3,'Color','black');
+% plot(linspace(0,fs/2,nSample/2), Ydbn(1:nSample/2),'LineWidth',3,'Color','red');
 grid on;
 xlabel("Frequency [Hz]",'FontName','Verdana','FontSize',fontsize)
 ylabel("PSD [dB]",'FontName','Verdana','FontSize',fontsize)
 % ylim([0.09 0.14])
 % % grid(gca,'minor')
-xlim([0 0.1*xscale])
+% xlim([0 0.1*xscale])
 % xticks([0 0.05 0.1])
 ax=gca; 
 ax.XAxis.Exponent = 3;
